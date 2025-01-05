@@ -1,38 +1,25 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabase';
 import { Check } from 'lucide-react';
 import { Modal } from '../shared/Modal';
+import { useTender } from '../../hooks/useTender';
 import type { FBOTender } from '../../types/tender';
 
 interface FBOOfferListProps {
   offers: FBOTender[];
   tenderId: string;
   tenderStatus: string;
+  onOfferAccepted: () => Promise<void>;
 }
 
-export function FBOOfferList({ offers, tenderId, tenderStatus }: FBOOfferListProps) {
+export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }: FBOOfferListProps) {
   const [showContractModal, setShowContractModal] = useState(false);
   const [selectedFBO, setSelectedFBO] = useState<FBOTender['fbo'] | null>(null);
+  const { acceptOffer, loading } = useTender();
 
   const handleAcceptOffer = async (offerId: string, fbo: FBOTender['fbo']) => {
     try {
-      // Update the FBO tender status
-      const { error: offerError } = await supabase
-        .from('fbo_tenders')
-        .update({ status: 'accepted' })
-        .eq('id', offerId);
-
-      if (offerError) throw offerError;
-
-      // Update the tender status
-      const { error: tenderError } = await supabase
-        .from('tenders')
-        .update({ status: 'accepted' })
-        .eq('id', tenderId);
-
-      if (tenderError) throw tenderError;
-
-      // Show the contract modal
+      await acceptOffer(offerId, tenderId);
+      await onOfferAccepted();
       setSelectedFBO(fbo);
       setShowContractModal(true);
     } catch (err) {
@@ -57,6 +44,9 @@ export function FBOOfferList({ offers, tenderId, tenderStatus }: FBOOfferListPro
             <tr>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 FBO
+              </th>
+              <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Location
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Offer Price
@@ -87,6 +77,14 @@ export function FBOOfferList({ offers, tenderId, tenderStatus }: FBOOfferListPro
                   <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">
                       {offer.fbo?.name || `FBO ${offer.fbo_id}`}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-sm text-gray-900">
+                      {offer.fbo?.icao?.code}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {offer.fbo?.icao?.name}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -145,6 +143,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus }: FBOOfferListPro
                       <button
                         onClick={() => handleAcceptOffer(offer.id, offer.fbo)}
                         className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        disabled={loading}
                       >
                         Accept
                       </button>
@@ -168,7 +167,10 @@ export function FBOOfferList({ offers, tenderId, tenderStatus }: FBOOfferListPro
           </p>
           <div className="mt-6 flex justify-end">
             <button
-              onClick={() => setShowContractModal(false)}
+              onClick={() => {
+                setShowContractModal(false);
+                window.location.reload();
+              }}
               className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             >
               Close

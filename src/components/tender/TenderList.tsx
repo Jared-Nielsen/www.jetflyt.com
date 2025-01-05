@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TenderStatus } from './TenderStatus';
 import { TenderDetails } from './TenderDetails';
 import type { Tender } from '../../types/tender';
+import { useTender } from '../../hooks/useTender';
 
 interface TenderListProps {
   tenders: (Tender & {
@@ -9,9 +10,10 @@ interface TenderListProps {
     icao: { code: string; name: string };
     fbo_tenders: Array<any>;
   })[];
+  onTendersUpdated: () => void;
 }
 
-export function TenderList({ tenders }: TenderListProps) {
+export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
   const [selectedTender, setSelectedTender] = useState<typeof tenders[0] | null>(null);
 
   if (tenders.length === 0) {
@@ -26,7 +28,8 @@ export function TenderList({ tenders }: TenderListProps) {
     return (
       <TenderDetails 
         tender={selectedTender} 
-        onClose={() => setSelectedTender(null)} 
+        onClose={() => setSelectedTender(null)}
+        onTenderUpdated={onTendersUpdated}
       />
     );
   }

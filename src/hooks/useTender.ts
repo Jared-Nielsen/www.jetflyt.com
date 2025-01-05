@@ -28,7 +28,8 @@ export function useTender() {
           icao_id: tenderData.icao_id,
           gallons: tenderData.gallons,
           target_price: tenderData.target_price,
-          description: tenderData.description
+          description: tenderData.description,
+          status: 'pending'
         }])
         .select()
         .single();
@@ -42,7 +43,8 @@ export function useTender() {
           fbo_id: fboId,
           offer_price: tenderData.target_price,
           total_cost: tenderData.target_price * tenderData.gallons,
-          taxes_and_fees: 0
+          taxes_and_fees: 0,
+          status: 'pending'
         }));
 
         const { error: fboError } = await supabase
@@ -83,7 +85,14 @@ export function useTender() {
           fbo_tenders(
             id,
             fbo_id,
-            fbo:fbos(id, name),
+            fbo:fbos(
+              id, 
+              name,
+              icao:icaos(
+                code,
+                name
+              )
+            ),
             offer_price,
             total_cost,
             taxes_and_fees,
@@ -107,10 +116,94 @@ export function useTender() {
     }
   };
 
+  const acceptOffer = async (offerId: string, tenderId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // First update the FBO tender
+      const { error: offerError } = await supabase
+        .from('fbo_tenders')
+        .update({ status: 'accepted' })
+        .eq('id', offerId);
+
+      if (offerError) throw offerError;
+
+      // Then update the tender
+      const { error: tenderError } = await supabase
+        .from('tenders')
+        .update({ status: 'accepted' })
+        .eq('id', tenderId);
+
+      if (tenderError) throw tenderError;
+
+      // Finally update all other FBO tenders to rejected
+      const { error: rejectError } = await supabase
+        .from('fbo_tenders')
+        .update({ status: 'rejected' })
+        .eq('tender_id', tenderId)
+        .neq('id', offerId);
+
+      if (rejectError) throw rejectError;
+
+    } catch (err) {
+      console.error('Error accepting offer:', err);
+      setError('Failed to accept offer');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelTender = async (tenderId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // First verify the tender is in pending status
+      const { data: tender, error: fetchError } = await supabase
+        .from('tenders')
+        .select('status')
+        .eq('id', tenderId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!tender) throw new Error('Tender not found');
+      if (tender.status !== 'pending') {
+        throw new Error('Only pending tenders can be cancelled');
+      }
+
+      // First update all FBO tenders
+      const { error: fboError } = await supabase
+        .from('fbo_tenders')
+        .update({ status: 'cancelled' })
+        .eq('tender_id', tenderId);
+
+      if (fboError) throw fboError;
+
+      // Then update the tender itself
+      const { error: tenderError } = await supabase
+        .from('tenders')
+        .update({ status: 'cancelled' })
+        .eq('id', tenderId);
+
+      if (tenderError) throw tenderError;
+
+    } catch (err) {
+      console.error('Error cancelling tender:', err);
+      setError(err instanceof Error ? err.message : 'Failed to cancel tender');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     createTender,
-    getTenders
+    getTenders,
+    acceptOffer,
+    cancelTender
   };
 }

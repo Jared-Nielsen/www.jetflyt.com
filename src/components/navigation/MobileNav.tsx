@@ -1,13 +1,20 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Plane, FileText, MapPin, Building2, LogOut, Route } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, Plane, FileText, MapPin, Building2, LogOut, Route, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleTenderClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = '/tender-offer';
+    toggleMenu();
+  };
 
   return (
     <div className="md:hidden flex items-center justify-between w-full">
@@ -60,14 +67,14 @@ export function MobileNav() {
                   <span>Dispatch</span>
                 </Link>
 
-                <Link
-                  to="/tender-offer"
+                <a
+                  href="/tender-offer"
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
-                  onClick={toggleMenu}
+                  onClick={handleTenderClick}
                 >
                   <FileText className="h-5 w-5" />
                   <span>Tenders</span>
-                </Link>
+                </a>
 
                 <Link
                   to="/fleet-registration"
@@ -76,6 +83,15 @@ export function MobileNav() {
                 >
                   <Plane className="h-5 w-5" />
                   <span>Fleet</span>
+                </Link>
+
+                <Link
+                  to="/reports"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
+                  onClick={toggleMenu}
+                >
+                  <BarChart3 className="h-5 w-5" />
+                  <span>Reports</span>
                 </Link>
 
                 <button

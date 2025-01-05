@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { useTrip } from '../hooks/useTrip';
 import { AddTripModal } from '../components/dispatch/AddTripModal';
@@ -10,7 +10,12 @@ import { LoadingScreen } from '../components/auth/LoadingScreen';
 
 export default function DispatchPage() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const { trips, activeTrip, loading, error, setTripActive } = useTrip();
+  const { trips, activeTrip, loading, error, setTripActive, refetch } = useTrip();
+
+  const handleTripAdded = useCallback(async () => {
+    await refetch();
+    setShowAddModal(false);
+  }, [refetch]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -101,6 +106,7 @@ export default function DispatchPage() {
                             setTripActive(trip.id);
                           }
                         }}
+                        onTripUpdated={refetch}
                       />
                     ))}
                   </div>
@@ -113,6 +119,7 @@ export default function DispatchPage() {
         <AddTripModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
+          onTripAdded={handleTripAdded}
         />
       </div>
     </>
