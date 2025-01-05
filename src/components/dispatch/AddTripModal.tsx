@@ -7,9 +7,10 @@ import type { Trip } from '../../types/trip';
 interface AddTripModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onTripAdded: () => void;
 }
 
-export function AddTripModal({ isOpen, onClose }: AddTripModalProps) {
+export function AddTripModal({ isOpen, onClose, onTripAdded }: AddTripModalProps) {
   const [error, setError] = useState<string | null>(null);
   const { createTrip } = useTrip();
 
@@ -17,6 +18,7 @@ export function AddTripModal({ isOpen, onClose }: AddTripModalProps) {
     try {
       setError(null);
       await createTrip(tripData);
+      await onTripAdded();
       onClose();
     } catch (err) {
       console.error('Error adding trip:', err);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import { Modal } from '../components/shared/Modal';
 import { TenderForm } from '../components/tender/TenderForm';
@@ -12,28 +12,30 @@ export default function TenderOfferPage() {
   const { loading, error, createTender, getTenders } = useTender();
   const [tenders, setTenders] = useState<any[]>([]);
 
-  // Load tenders on mount
-  useEffect(() => {
-    const loadTenders = async () => {
+  const loadTenders = useCallback(async () => {
+    try {
       const data = await getTenders();
       setTenders(data || []);
-    };
+    } catch (err) {
+      console.error('Error loading tenders:', err);
+    }
+  }, [getTenders]);
+
+  useEffect(() => {
     loadTenders();
-  }, []);
+  }, []); // Only run on mount
 
   const handleSubmit = async (data: any) => {
     try {
       const { selected_fbos, ...tenderData } = data;
       await createTender(tenderData, selected_fbos);
-      const updatedTenders = await getTenders();
-      setTenders(updatedTenders || []);
-      setShowForm(false);
+      window.location.href = '/tender-offer'; // Hard reload after creation
     } catch (err) {
       console.error('Error submitting tender:', err);
     }
   };
 
-  if (loading) {
+  if (loading && tenders.length === 0) {
     return <LoadingScreen />;
   }
 
@@ -70,7 +72,7 @@ export default function TenderOfferPage() {
         )}
 
         <div className="mt-8">
-          <TenderList tenders={tenders} />
+          <TenderList tenders={tenders} onTendersUpdated={loadTenders} />
         </div>
 
         <Modal

@@ -1,18 +1,31 @@
+import { useState } from 'react';
 import { TenderStatus } from './TenderStatus';
 import { FBOOfferList } from './FBOOfferList';
-import type { Tender, FBOTender } from '../../types/tender';
+import { Modal } from '../shared/Modal';
+import { useTender } from '../../hooks/useTender';
+import type { Tender } from '../../types/tender';
 
 interface TenderDetailsProps {
-  tender: Tender & {
-    aircraft: { tail_number: string; manufacturer: string; model: string };
-    icao: { code: string; name: string };
-    fbo_tenders: FBOTender[];
-  };
+  tender: Tender;
   onClose: () => void;
+  onTenderUpdated: () => void;
 }
 
-export function TenderDetails({ tender, onClose }: TenderDetailsProps) {
+export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetailsProps) {
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const { cancelTender, loading, error } = useTender();
   const totalValue = tender.gallons * tender.target_price;
+
+  const handleCancel = async () => {
+    try {
+      await cancelTender(tender.id);
+      await onTenderUpdated();
+      setShowCancelModal(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error cancelling tender:', err);
+    }
+  };
 
   return (
     <div className="bg-white shadow sm:rounded-lg">
@@ -24,7 +37,17 @@ export function TenderDetails({ tender, onClose }: TenderDetailsProps) {
               Created {new Date(tender.created_at).toLocaleDateString()}
             </div>
           </div>
-          <TenderStatus status={tender.status} />
+          <div className="flex items-center space-x-4">
+            <TenderStatus status={tender.status} />
+            {tender.status === 'pending' && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
+              >
+                Cancel Tender
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6 border-t border-gray-200 pt-6">
@@ -80,11 +103,12 @@ export function TenderDetails({ tender, onClose }: TenderDetailsProps) {
               offers={tender.fbo_tenders}
               tenderId={tender.id}
               tenderStatus={tender.status}
+              onOfferAccepted={onTenderUpdated}
             />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
           <button
             type="button"
             onClick={onClose}
@@ -92,7 +116,41 @@ export function TenderDetails({ tender, onClose }: TenderDetailsProps) {
           >
             Close
           </button>
+          <div className="text-sm text-gray-500">
+            Tender ID: {tender.id}
+          </div>
         </div>
+
+        <Modal
+          isOpen={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          title="Cancel Tender"
+        >
+          <div className="p-6">
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to cancel this tender? This action cannot be undone.
+            </p>
+            {error && (
+              <p className="text-red-600 mb-4">{error}</p>
+            )}
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={loading}
+              >
+                No, Keep It
+              </button>
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
+                disabled={loading}
+              >
+                {loading ? 'Cancelling...' : 'Yes, Cancel Tender'}
+              </button>
+            </div>
+          </div>
+        </Modal>
       </div>
     </div>
   );
