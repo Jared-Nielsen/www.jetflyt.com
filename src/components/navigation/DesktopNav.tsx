@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Plane, FileText, MapPin, Building2, LogOut, Route, BarChart3 } from 'lucide-react';
+import { Plane, FileText, LogOut, Route, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function DesktopNav() {
@@ -19,16 +19,6 @@ export function DesktopNav() {
       </Link>
       
       <div className="flex items-center justify-end space-x-4 ml-auto">
-        <Link to="/fbos" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">
-          <Building2 className="h-4 w-4" />
-          <span>FBOs</span>
-        </Link>
-        
-        <Link to="/icaos" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">
-          <MapPin className="h-4 w-4" />
-          <span>Airports</span>
-        </Link>
-
         {user && (
           <>
             <Link to="/dispatch" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">

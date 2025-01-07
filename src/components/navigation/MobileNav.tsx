@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Plane, FileText, MapPin, Building2, LogOut, Route, BarChart3 } from 'lucide-react';
+import { Menu, X, Plane, FileText, LogOut, Route, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function MobileNav() {
@@ -38,24 +38,6 @@ export function MobileNav() {
       {isOpen && (
         <div className="absolute top-16 inset-x-0 bg-blue-900 shadow-lg z-[9999]">
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <Link
-              to="/fbos"
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
-              onClick={toggleMenu}
-            >
-              <Building2 className="h-5 w-5" />
-              <span>FBOs</span>
-            </Link>
-
-            <Link
-              to="/icaos"
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
-              onClick={toggleMenu}
-            >
-              <MapPin className="h-5 w-5" />
-              <span>Airports</span>
-            </Link>
-
             {user && (
               <>
                 <Link
