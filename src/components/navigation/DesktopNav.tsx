@@ -1,14 +1,24 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { Plane, FileText, LogOut, Route, BarChart3 } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Plane, FileText, LogOut, BarChart3, Briefcase } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function DesktopNav() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleTenderClick = (e: React.MouseEvent) => {
     e.preventDefault();
     window.location.href = '/tender-offer';
+  };
+
+  const handleHandlingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname.startsWith('/ground-handling')) {
+      window.location.href = '/ground-handling';
+    } else {
+      navigate('/ground-handling');
+    }
   };
 
   return (
@@ -20,12 +30,7 @@ export function DesktopNav() {
       
       <div className="flex items-center justify-end space-x-4 ml-auto">
         {user && (
-          <>
-            <Link to="/dispatch" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">
-              <Route className="h-4 w-4" />
-              <span>Dispatch</span>
-            </Link>
-            
+          <>            
             <a 
               href="/tender-offer"
               onClick={handleTenderClick}
@@ -33,6 +38,15 @@ export function DesktopNav() {
             >
               <FileText className="h-4 w-4" />
               <span>Tenders</span>
+            </a>
+            
+            <a
+              href="/ground-handling"
+              onClick={handleHandlingClick}
+              className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
+            >
+              <Briefcase className="h-4 w-4" />
+              <span>Handling</span>
             </a>
             
             <Link to="/fleet-registration" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">

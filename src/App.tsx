@@ -12,6 +12,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const TenderOfferPage = lazy(() => import('./pages/TenderOfferPage'));
+const GroundHandlingPage = lazy(() => import('./pages/GroundHandlingPage'));
 const FleetRegistrationPage = lazy(() => import('./pages/FleetRegistrationPage'));
 const FBOMapPage = lazy(() => import('./pages/FBOMapPage'));
 const AirportsPage = lazy(() => import('./pages/AirportsPage'));
@@ -43,6 +44,7 @@ export default function App() {
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dispatch" element={<DispatchPage />} />
                   <Route path="/tender-offer" element={<TenderOfferPage />} />
+                  <Route path="/ground-handling" element={<GroundHandlingPage />} />
                   <Route path="/fleet-registration" element={<FleetRegistrationPage />} />
                   <Route path="/reports" element={<ReportsPage />} />
                 </Route>

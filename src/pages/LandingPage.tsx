@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Plane, FileText, Route, BarChart3 } from 'lucide-react';
+import { Plane, FileText, BarChart3, Briefcase } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -30,16 +30,16 @@ export default function LandingPage() {
                   <p>Create and submit your annual fuel contract tender offers easily.</p>
                 </Link>
 
+                <Link to="/ground-handling" className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition">
+                  <Briefcase className="h-12 w-12 mb-4" />
+                  <h2 className="text-2xl font-semibold mb-2">Ground Handling</h2>
+                  <p>Submit a tender for ground handling services.</p>
+                </Link>
+
                 <Link to="/fleet-registration" className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition">
                   <Plane className="h-12 w-12 mb-4" />
                   <h2 className="text-2xl font-semibold mb-2">Fleet Management</h2>
                   <p>Register and manage your aircraft fleet information.</p>
-                </Link>
-
-                <Link to="/dispatch" className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition">
-                  <Route className="h-12 w-12 mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">Dispatch</h2>
-                  <p>Plan and manage your trips and routes efficiently.</p>
                 </Link>
 
                 <Link to="/reports" className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition">
@@ -60,18 +60,18 @@ export default function LandingPage() {
                 </div>
 
                 <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6">
-                  <Plane className="h-12 w-12 mb-4 opacity-50" />
-                  <h2 className="text-2xl font-semibold mb-2">Fleet Management</h2>
-                  <p className="mb-4">Register and manage your aircraft fleet information.</p>
+                  <Briefcase className="h-12 w-12 mb-4 opacity-50" />
+                  <h2 className="text-2xl font-semibold mb-2">Ground Handling</h2>
+                  <p className="mb-4">Submit a tender for ground handling services.</p>
                   <Link to="/auth/login" className="text-sm text-blue-300 hover:text-blue-200">
                     Sign in to access →
                   </Link>
                 </div>
 
                 <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6">
-                  <Route className="h-12 w-12 mb-4 opacity-50" />
-                  <h2 className="text-2xl font-semibold mb-2">Dispatch</h2>
-                  <p className="mb-4">Plan and manage your trips and routes efficiently.</p>
+                  <Plane className="h-12 w-12 mb-4 opacity-50" />
+                  <h2 className="text-2xl font-semibold mb-2">Fleet Management</h2>
+                  <p className="mb-4">Register and manage your aircraft fleet information.</p>
                   <Link to="/auth/login" className="text-sm text-blue-300 hover:text-blue-200">
                     Sign in to access →
                   </Link>

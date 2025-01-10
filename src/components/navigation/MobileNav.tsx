@@ -1,18 +1,29 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Plane, FileText, LogOut, Route, BarChart3 } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, X, Plane, FileText, LogOut, BarChart3, Briefcase } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleTenderClick = (e: React.MouseEvent) => {
     e.preventDefault();
     window.location.href = '/tender-offer';
+    toggleMenu();
+  };
+
+  const handleHandlingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (location.pathname.startsWith('/ground-handling')) {
+      window.location.href = '/ground-handling';
+    } else {
+      navigate('/ground-handling');
+    }
     toggleMenu();
   };
 
@@ -40,15 +51,6 @@ export function MobileNav() {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {user && (
               <>
-                <Link
-                  to="/dispatch"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
-                  onClick={toggleMenu}
-                >
-                  <Route className="h-5 w-5" />
-                  <span>Dispatch</span>
-                </Link>
-
                 <a
                   href="/tender-offer"
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
@@ -56,6 +58,15 @@ export function MobileNav() {
                 >
                   <FileText className="h-5 w-5" />
                   <span>Tenders</span>
+                </a>
+
+                <a
+                  href="/ground-handling"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
+                  onClick={handleHandlingClick}
+                >
+                  <Briefcase className="h-5 w-5" />
+                  <span>Handling</span>
                 </a>
 
                 <Link

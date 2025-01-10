@@ -26,6 +26,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/dispatch" className="text-gray-400 hover:text-white">
+                  Dispatch
+                </Link>
+              </li>
+              <li>
                 <Link to="/support" className="text-gray-400 hover:text-white">
                   Support
                 </Link>

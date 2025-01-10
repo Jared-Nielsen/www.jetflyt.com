@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { TenderStatus } from './TenderStatus';
 import { FBOOfferList } from './FBOOfferList';
 import { Modal } from '../shared/Modal';
+import { TenderForm } from './TenderForm';
 import { useTender } from '../../hooks/useTender';
 import type { Tender } from '../../types/tender';
+import { Pencil, Calendar, ArrowRight, CalendarCheck } from 'lucide-react';
 
 interface TenderDetailsProps {
   tender: Tender;
@@ -13,8 +15,13 @@ interface TenderDetailsProps {
 
 export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetailsProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const { cancelTender, loading, error } = useTender();
+  const [showEditModal, setShowEditModal] = useState(false);
+  const { cancelTender, updateTender, loading, error } = useTender();
   const totalValue = tender.gallons * tender.target_price;
+
+  const isAnnual = tender.start_date && tender.end_date && 
+    new Date(tender.end_date).getTime() - new Date(tender.start_date).getTime() >= 364 * 24 * 60 * 60 * 1000 &&
+    new Date(tender.end_date).getTime() - new Date(tender.start_date).getTime() <= 366 * 24 * 60 * 60 * 1000;
 
   const handleCancel = async () => {
     try {
@@ -27,6 +34,23 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
     }
   };
 
+  const handleEdit = async (data: any) => {
+    try {
+      await updateTender(tender.id, {
+        gallons: data.gallons,
+        target_price: data.target_price,
+        description: data.description,
+        start_date: data.start_date,
+        end_date: data.end_date
+      });
+      await onTenderUpdated();
+      setShowEditModal(false);
+      onClose();
+    } catch (err) {
+      console.error('Error updating tender:', err);
+    }
+  };
+
   return (
     <div className="bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
@@ -36,16 +60,43 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             <div className="mt-2 text-sm text-gray-500">
               Created {new Date(tender.created_at).toLocaleDateString()}
             </div>
+            {(tender.start_date || tender.end_date) && (
+              <div className="mt-2 flex items-center text-sm text-gray-500">
+                {isAnnual ? (
+                  <CalendarCheck className="h-4 w-4 mr-1 text-green-600" />
+                ) : (
+                  <Calendar className="h-4 w-4 mr-1" />
+                )}
+                <span>
+                  {tender.start_date && new Date(tender.start_date).toLocaleDateString()}
+                  {tender.end_date && (
+                    <>
+                      <ArrowRight className="inline-block h-4 w-4 mx-1" />
+                      {new Date(tender.end_date).toLocaleDateString()}
+                    </>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             <TenderStatus status={tender.status} />
             {tender.status === 'pending' && (
-              <button
-                onClick={() => setShowCancelModal(true)}
-                className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
-              >
-                Cancel Tender
-              </button>
+              <>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 border border-blue-600 rounded"
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowCancelModal(true)}
+                  className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
+                >
+                  Cancel Tender
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -78,7 +129,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Target Price</dt>
+              <dt className="text-sm font-medium text-gray-500">Best Current Price</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 ${tender.target_price.toFixed(2)}/gal
                 <div className="text-sm text-gray-500">
@@ -150,6 +201,18 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
               </button>
             </div>
           </div>
+        </Modal>
+
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title="Edit Tender"
+        >
+          <TenderForm
+            initialData={tender}
+            onSubmit={handleEdit}
+            onCancel={() => setShowEditModal(false)}
+          />
         </Modal>
       </div>
     </div>

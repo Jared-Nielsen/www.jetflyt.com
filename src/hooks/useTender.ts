@@ -64,6 +64,58 @@ export function useTender() {
     }
   };
 
+  const updateTender = async (
+    tenderId: string,
+    updates: {
+      gallons?: number;
+      target_price?: number;
+      description?: string;
+    }
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { error: updateError } = await supabase
+        .from('tenders')
+        .update(updates)
+        .eq('id', tenderId);
+
+      if (updateError) throw updateError;
+
+      // If price changed, update all pending FBO tenders
+      if (updates.target_price || updates.gallons) {
+        const { data: fboTenders, error: fetchError } = await supabase
+          .from('fbo_tenders')
+          .select('*')
+          .eq('tender_id', tenderId)
+          .eq('status', 'pending');
+
+        if (fetchError) throw fetchError;
+
+        if (fboTenders) {
+          const fboUpdates = fboTenders.map(fboTender => ({
+            ...fboTender,
+            offer_price: updates.target_price || fboTender.offer_price,
+            total_cost: (updates.target_price || fboTender.offer_price) * (updates.gallons || fboTender.total_cost / fboTender.offer_price)
+          }));
+
+          const { error: fboUpdateError } = await supabase
+            .from('fbo_tenders')
+            .upsert(fboUpdates);
+
+          if (fboUpdateError) throw fboUpdateError;
+        }
+      }
+    } catch (err) {
+      console.error('Error updating tender:', err);
+      setError('Failed to update tender');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getTenders = async () => {
     try {
       setLoading(true);
@@ -202,6 +254,7 @@ export function useTender() {
     loading,
     error,
     createTender,
+    updateTender,
     getTenders,
     acceptOffer,
     cancelTender

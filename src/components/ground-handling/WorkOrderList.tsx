@@ -1,35 +1,30 @@
 import React, { useState } from 'react';
-import { TenderStatus } from './TenderStatus';
-import { TenderDetails } from './TenderDetails';
-import type { Tender } from '../../types/tender';
-import { useTender } from '../../hooks/useTender';
+import { WorkOrderDetails } from './WorkOrderDetails';
+import { WorkOrderStatus } from './WorkOrderStatus';
+import type { WorkOrder } from '../../types/workOrder';
 
-interface TenderListProps {
-  tenders: (Tender & {
-    aircraft: { tail_number: string; manufacturer: string; model: string };
-    icao: { code: string; name: string };
-    fbo_tenders: Array<any>;
-  })[];
-  onTendersUpdated: () => void;
+interface WorkOrderListProps {
+  workOrders: WorkOrder[];
+  onWorkOrdersUpdated: () => void;
 }
 
-export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
-  const [selectedTender, setSelectedTender] = useState<typeof tenders[0] | null>(null);
+export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderListProps) {
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
 
-  if (tenders.length === 0) {
+  if (workOrders.length === 0) {
     return (
       <div className="text-center py-8 bg-white rounded-lg shadow">
-        <p className="text-gray-500">No tender offers found.</p>
+        <p className="text-gray-500">No work orders found.</p>
       </div>
     );
   }
 
-  if (selectedTender) {
+  if (selectedWorkOrder) {
     return (
-      <TenderDetails 
-        tender={selectedTender} 
-        onClose={() => setSelectedTender(null)}
-        onTenderUpdated={onTendersUpdated}
+      <WorkOrderDetails 
+        workOrder={selectedWorkOrder} 
+        onClose={() => setSelectedWorkOrder(null)}
+        onWorkOrderUpdated={onWorkOrdersUpdated}
       />
     );
   }
@@ -37,44 +32,40 @@ export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
   // Mobile card view
   const MobileView = () => (
     <div className="space-y-4">
-      {tenders.map((tender) => (
+      {workOrders.map((workOrder) => (
         <div 
-          key={tender.id}
-          onClick={() => setSelectedTender(tender)}
+          key={workOrder.id}
+          onClick={() => setSelectedWorkOrder(workOrder)}
           className="bg-white shadow rounded-lg p-4 cursor-pointer hover:bg-gray-50"
         >
           <div className="flex justify-between items-start mb-2">
             <div>
               <div className="font-medium text-gray-900">
-                {tender.aircraft.tail_number}
+                {workOrder.aircraft.tail_number}
               </div>
               <div className="text-sm text-gray-500">
-                {tender.aircraft.manufacturer} {tender.aircraft.model}
+                {workOrder.aircraft.manufacturer} {workOrder.aircraft.model}
               </div>
             </div>
-            <TenderStatus status={tender.status} />
+            <WorkOrderStatus status={workOrder.status} />
           </div>
-
+          
           <div className="mt-2">
             <div className="text-sm font-medium text-gray-900">
-              {tender.icao.code}
+              {workOrder.fbo.icao.code} - {workOrder.fbo.name}
             </div>
-            <div className="text-xs text-gray-500">
-              {tender.icao.name}
+            <div className="text-sm text-gray-500">
+              {workOrder.service.name}
             </div>
           </div>
 
           <div className="mt-2 flex justify-between items-end">
             <div className="text-sm text-gray-600">
-              {tender.gallons.toLocaleString()} gal
+              Qty: {workOrder.quantity}
             </div>
             <div className="text-sm text-gray-600">
-              ${tender.target_price.toFixed(2)}/gal
+              {new Date(workOrder.requested_date).toLocaleDateString()}
             </div>
-          </div>
-
-          <div className="mt-2 text-xs text-gray-500">
-            {tender.fbo_tenders.length} FBO response{tender.fbo_tenders.length !== 1 ? 's' : ''}
           </div>
         </div>
       ))}
@@ -93,59 +84,81 @@ export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
             Location
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Fuel Request
+            Service
+          </th>
+          <th scope="col" className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Description
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Current Best Price
+            Quantity
+          </th>
+          <th scope="col" className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Price
+          </th>
+          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Requested Date
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Status
           </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            FBO Responses
-          </th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {tenders.map((tender) => (
+        {workOrders.map((workOrder) => (
           <tr 
-            key={tender.id} 
-            onClick={() => setSelectedTender(tender)}
+            key={workOrder.id} 
+            onClick={() => setSelectedWorkOrder(workOrder)}
             className="hover:bg-gray-50 cursor-pointer"
           >
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm font-medium text-gray-900">
-                {tender.aircraft.tail_number}
+                {workOrder.aircraft.tail_number}
               </div>
               <div className="text-sm text-gray-500">
-                {tender.aircraft.manufacturer} {tender.aircraft.model}
+                {workOrder.aircraft.manufacturer} {workOrder.aircraft.model}
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm font-medium text-gray-900">
-                {tender.icao.code}
+                {workOrder.fbo.name}
               </div>
               <div className="text-sm text-gray-500">
-                {tender.icao.name}
+                {workOrder.fbo.icao.code}
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm font-medium text-gray-900">
+                {workOrder.service.name}
+              </div>
+              <div className="text-sm text-gray-500">
+                {workOrder.service.type.name}
+              </div>
+            </td>
+            <td className="hidden lg:table-cell px-6 py-4">
+              <div className="text-sm text-gray-900">
+                {workOrder.description}
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-gray-900">
-                {tender.gallons.toLocaleString()} gallons
+                {workOrder.quantity}
+              </div>
+            </td>
+            <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">
+                ${(workOrder.quantity * workOrder.service.price).toFixed(2)}
+              </div>
+              <div className="text-xs text-gray-500">
+                ${workOrder.service.price}/unit
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-gray-900">
-                ${tender.target_price.toFixed(2)}/gal
+                {new Date(workOrder.requested_date).toLocaleDateString()}
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-              <TenderStatus status={tender.status} />
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-gray-900">
-                {tender.fbo_tenders.length} FBOs
-              </div>
+              <WorkOrderStatus status={workOrder.status} />
             </td>
           </tr>
         ))}
