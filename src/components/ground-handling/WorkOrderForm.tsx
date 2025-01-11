@@ -14,7 +14,7 @@ interface WorkOrderFormProps {
   initialData?: {
     aircraft_id: string;
     service_id: string;
-    fbo_id: string;
+    selected_fbos: string[];
     quantity: number;
     description: string;
     requested_date: string;
@@ -27,7 +27,7 @@ interface WorkOrderFormProps {
   onSubmit: (data: {
     aircraft_id: string;
     service_id: string;
-    fbo_id: string;
+    selected_fbos: string[];
     quantity: number;
     description: string;
     requested_date: string;
@@ -49,7 +49,7 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
   const [formData, setFormData] = useState({
     aircraft_id: initialData?.aircraft_id || '',
     service_id: initialData?.service_id || '',
-    fbo_id: initialData?.fbo_id || '',
+    selected_fbos: initialData?.selected_fbos || [],
     quantity: initialData?.quantity?.toString() || '1',
     description: initialData?.description || '',
     requested_date: initialData?.requested_date ? new Date(initialData.requested_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
@@ -64,36 +64,6 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
   const [dateError, setDateError] = useState<string | null>(null);
 
   // Load FBOs for the selected airport
-  useEffect(() => {
-    if (initialData?.fbo_id) {
-      const loadInitialFBO = async () => {
-        try {
-          const { data: fboData, error: fboError } = await supabase
-            .from('fbos')
-            .select('*, icao:icao_id(*)')
-            .eq('id', initialData.fbo_id)
-            .single();
-
-          if (fboError) throw fboError;
-          if (fboData) {
-            setSelectedAirport(fboData.icao);
-            const { data: fbos, error: fbosError } = await supabase
-              .from('fbos')
-              .select('*')
-              .eq('icao_id', fboData.icao.id);
-
-            if (fbosError) throw fbosError;
-            setFbos(fbos || []);
-          }
-        } catch (err) {
-          console.error('Error loading initial FBO data:', err);
-        }
-      };
-
-      loadInitialFBO();
-    }
-  }, [initialData?.fbo_id]);
-
   useEffect(() => {
     if (selectedAirport) {
       const fetchFBOs = async () => {
@@ -137,6 +107,12 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         setDateError('Departure date must be after arrival date');
         return;
       }
+    }
+
+    // Validate at least one FBO is selected
+    if (formData.selected_fbos.length === 0) {
+      alert('Please select at least one FBO');
+      return;
     }
 
     try {
@@ -203,7 +179,7 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         value={formData.aircraft_id}
         onChange={e => setFormData(prev => ({ ...prev, aircraft_id: e.target.value }))}
         required
-        disabled={Boolean(initialData)} // Disable in edit mode
+        disabled={Boolean(initialData)}
       >
         <option value="">Select aircraft</option>
         {aircraft?.map(a => (
@@ -219,7 +195,7 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         onChange={e => {
           const airport = airports?.find(a => a.id === e.target.value);
           setSelectedAirport(airport || null);
-          setFormData(prev => ({ ...prev, fbo_id: '' }));
+          setFormData(prev => ({ ...prev, selected_fbos: [] }));
         }}
         required
       >
@@ -231,20 +207,33 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         ))}
       </FormSelect>
 
-      <FormSelect
-        label="FBO"
-        value={formData.fbo_id}
-        onChange={e => setFormData(prev => ({ ...prev, fbo_id: e.target.value }))}
-        required
-        disabled={!selectedAirport}
-      >
-        <option value="">Select FBO</option>
-        {fbos.map(fbo => (
-          <option key={fbo.id} value={fbo.id}>
-            {fbo.name}
-          </option>
-        ))}
-      </FormSelect>
+      {fbos.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select FBOs
+          </label>
+          <div className="space-y-2 border rounded-md p-3">
+            {fbos.map(fbo => (
+              <label key={fbo.id} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.selected_fbos.includes(fbo.id)}
+                  onChange={e => {
+                    setFormData(prev => ({
+                      ...prev,
+                      selected_fbos: e.target.checked
+                        ? [...prev.selected_fbos, fbo.id]
+                        : prev.selected_fbos.filter(id => id !== fbo.id)
+                    }));
+                  }}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-900">{fbo.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       <FormSelect
         label="Service"
@@ -347,10 +336,10 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || formData.selected_fbos.length === 0}
           className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? (initialData ? 'Updating...' : 'Creating...') : (initialData ? 'Update Work Order' : 'Create Work Order')}
+          {loading ? 'Creating...' : 'Create Work Order'}
         </button>
       </div>
     </form>

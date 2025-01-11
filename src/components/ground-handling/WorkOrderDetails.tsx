@@ -18,8 +18,6 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const totalCost = workOrder.quantity * workOrder.service.price;
-
   const handleStatusUpdate = async (newStatus: WorkOrder['status']) => {
     try {
       setLoading(true);
@@ -61,11 +59,11 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       setLoading(true);
       setError(null);
 
+      // Update work order
       const { error: updateError } = await supabase
         .from('work_orders')
         .update({
           service_id: data.service_id,
-          fbo_id: data.fbo_id,
           quantity: data.quantity,
           description: data.description,
           requested_date: data.requested_date,
@@ -78,12 +76,31 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         .eq('id', workOrder.id);
 
       if (updateError) throw updateError;
+
+      // Update FBO associations
+      // First delete existing associations
+      const { error: deleteError } = await supabase
+        .from('work_order_fbos')
+        .delete()
+        .eq('work_order_id', workOrder.id);
+
+      if (deleteError) throw deleteError;
+
+      // Then create new associations
+      const fboAssociations = data.selected_fbos.map((fboId: string) => ({
+        work_order_id: workOrder.id,
+        fbo_id: fboId,
+        status: 'pending'
+      }));
+
+      const { error: insertError } = await supabase
+        .from('work_order_fbos')
+        .insert(fboAssociations);
+
+      if (insertError) throw insertError;
       
-      // First update the parent component
       await onWorkOrderUpdated();
-      // Then close the modal
       setShowEditModal(false);
-      // Finally close the details view to show the updated list
       onClose();
     } catch (err) {
       console.error('Error updating work order:', err);
@@ -153,10 +170,14 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Location</dt>
+              <dt className="text-sm font-medium text-gray-500">FBO Locations</dt>
               <dd className="mt-1">
-                <div className="text-sm text-gray-900">{workOrder.fbo.name}</div>
-                <div className="text-sm text-gray-500">{workOrder.fbo.icao.code}</div>
+                {workOrder.fbo_associations?.map(assoc => (
+                  <div key={assoc.id} className="text-sm">
+                    <div className="font-medium text-gray-900">{assoc.fbo.name}</div>
+                    <div className="text-gray-500">{assoc.fbo.icao?.code}</div>
+                  </div>
+                ))}
               </dd>
             </div>
 
@@ -172,16 +193,6 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
               <dt className="text-sm font-medium text-gray-500">Quantity</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {workOrder.quantity} units
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Price</dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                ${workOrder.service.price}/unit
-                <div className="text-sm text-gray-500">
-                  Total: ${totalCost.toFixed(2)}
-                </div>
               </dd>
             </div>
 
@@ -206,7 +217,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
               <dd className="mt-1 text-sm text-gray-900">{workOrder.description}</dd>
             </div>
 
-            <div className="sm:col-span-2 border-t border-gray-200 pt-4">
+            <div className="sm:col-span-2 border-t pt-4">
               <dt className="text-sm font-medium text-gray-500 mb-4">Passenger Information</dt>
               <dd className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg">
@@ -307,7 +318,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             initialData={{
               aircraft_id: workOrder.aircraft_id,
               service_id: workOrder.service_id,
-              fbo_id: workOrder.fbo_id,
+              selected_fbos: workOrder.fbo_associations.map(assoc => assoc.fbo_id),
               quantity: workOrder.quantity,
               description: workOrder.description,
               requested_date: workOrder.requested_date,

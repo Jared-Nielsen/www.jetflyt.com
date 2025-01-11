@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { WorkOrderDetails } from './WorkOrderDetails';
 import { WorkOrderStatus } from './WorkOrderStatus';
+import { supabase } from '../../lib/supabase';
 import type { WorkOrder } from '../../types/workOrder';
 
 interface WorkOrderListProps {
@@ -10,11 +11,113 @@ interface WorkOrderListProps {
 
 export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderListProps) {
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAcceptOffer = async (
+    e: React.MouseEvent,
+    workOrderId: string,
+    fboAssociationId: string
+  ) => {
+    e.stopPropagation();
+    try {
+      setLoading(true);
+
+      // Start a transaction by using the same timestamp for all updates
+      const timestamp = new Date().toISOString();
+
+      // Update the selected FBO association to accepted
+      const { error: acceptError } = await supabase
+        .from('work_order_fbos')
+        .update({ 
+          status: 'accepted',
+          updated_at: timestamp 
+        })
+        .eq('id', fboAssociationId);
+
+      if (acceptError) throw acceptError;
+
+      // Update all other FBO associations for this work order to blank status
+      const { error: rejectError } = await supabase
+        .from('work_order_fbos')
+        .update({ 
+          status: '',
+          updated_at: timestamp 
+        })
+        .eq('work_order_id', workOrderId)
+        .neq('id', fboAssociationId);
+
+      if (rejectError) throw rejectError;
+
+      // Update the work order status to accepted
+      const { error: workOrderError } = await supabase
+        .from('work_orders')
+        .update({ 
+          status: 'accepted',
+          updated_at: timestamp 
+        })
+        .eq('id', workOrderId);
+
+      if (workOrderError) throw workOrderError;
+
+      await onWorkOrdersUpdated();
+    } catch (err) {
+      console.error('Error accepting offer:', err);
+      alert('Failed to accept offer. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const FBOList = ({ workOrder }: { workOrder: WorkOrder }) => {
+    // Sort FBO associations alphabetically by FBO name
+    const sortedAssociations = [...workOrder.fbo_associations].sort((a, b) => 
+      a.fbo.name.localeCompare(b.fbo.name)
+    );
+
+    // Check if any FBO has been accepted
+    const hasAcceptedFBO = sortedAssociations.some(assoc => assoc.status === 'accepted');
+
+    return (
+      <div className="space-y-1">
+        {sortedAssociations.map(assoc => (
+          <div key={assoc.id} className="flex justify-between items-center">
+            <div>
+              <span className="font-medium">{assoc.fbo.name}</span>
+              <span className="text-gray-500 ml-1">({assoc.fbo.icao?.code})</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {assoc.price > 0 && (
+                <span className="text-sm font-medium text-gray-900">
+                  ${assoc.price.toFixed(2)}
+                </span>
+              )}
+              {/* Show Accept button or status badge */}
+              <div className="w-16 text-right"> {/* Fixed width container for consistent spacing */}
+                {!hasAcceptedFBO && assoc.status === 'pending' ? (
+                  <button
+                    onClick={(e) => handleAcceptOffer(e, workOrder.id, assoc.id)}
+                    disabled={loading}
+                    className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 disabled:opacity-50"
+                  >
+                    Accept
+                  </button>
+                ) : assoc.status === 'accepted' && (
+                  <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800">
+                    Accepted
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   if (workOrders.length === 0) {
     return (
       <div className="text-center py-8 bg-white rounded-lg shadow">
-        <p className="text-gray-500">No work orders found.</p>
+        <p className="text-gray-500">No service tenders found.</p>
       </div>
     );
   }
@@ -49,24 +152,26 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
             </div>
             <WorkOrderStatus status={workOrder.status} />
           </div>
-          
+
           <div className="mt-2">
             <div className="text-sm font-medium text-gray-900">
-              {workOrder.fbo.icao.code} - {workOrder.fbo.name}
+              {workOrder.service.name}
             </div>
             <div className="text-sm text-gray-500">
-              {workOrder.service.name}
+              {workOrder.service.type.name}
             </div>
           </div>
 
-          <div className="mt-2 flex justify-between items-end">
-            <div className="text-sm text-gray-600">
-              Qty: {workOrder.quantity}
-            </div>
-            <div className="text-sm text-gray-600">
-              {new Date(workOrder.requested_date).toLocaleDateString()}
-            </div>
+          <div className="mt-3 border-t pt-2">
+            <div className="text-sm font-medium text-gray-900 mb-1">FBO Locations:</div>
+            <FBOList workOrder={workOrder} />
           </div>
+
+          {workOrder.description && (
+            <div className="mt-2 text-sm text-gray-600">
+              {workOrder.description}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -81,22 +186,13 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
             Aircraft
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Location
+            Service
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Service
+            FBO Locations
           </th>
           <th scope="col" className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Description
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Quantity
-          </th>
-          <th scope="col" className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Price
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Requested Date
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             Status
@@ -120,41 +216,18 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm font-medium text-gray-900">
-                {workOrder.fbo.name}
-              </div>
-              <div className="text-sm text-gray-500">
-                {workOrder.fbo.icao.code}
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm font-medium text-gray-900">
                 {workOrder.service.name}
               </div>
               <div className="text-sm text-gray-500">
                 {workOrder.service.type.name}
               </div>
             </td>
+            <td className="px-6 py-4">
+              <FBOList workOrder={workOrder} />
+            </td>
             <td className="hidden lg:table-cell px-6 py-4">
               <div className="text-sm text-gray-900">
                 {workOrder.description}
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-gray-900">
-                {workOrder.quantity}
-              </div>
-            </td>
-            <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-gray-900">
-                ${(workOrder.quantity * workOrder.service.price).toFixed(2)}
-              </div>
-              <div className="text-xs text-gray-500">
-                ${workOrder.service.price}/unit
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-gray-900">
-                {new Date(workOrder.requested_date).toLocaleDateString()}
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
@@ -168,7 +241,6 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      {/* Show mobile view on small screens, desktop view on medium and up */}
       <div className="block md:hidden">
         <MobileView />
       </div>
