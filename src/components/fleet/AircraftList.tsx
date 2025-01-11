@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pencil, Trash2, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Aircraft } from '../../types/aircraft';
+import { AircraftDetails } from './AircraftDetails';
 
 interface AircraftListProps {
   aircraft: Aircraft[];
@@ -10,11 +11,26 @@ interface AircraftListProps {
 }
 
 export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) {
+  const [selectedAircraft, setSelectedAircraft] = useState<Aircraft | null>(null);
+
   if (aircraft.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">No aircraft registered yet.</p>
       </div>
+    );
+  }
+
+  if (selectedAircraft) {
+    return (
+      <AircraftDetails 
+        aircraft={selectedAircraft}
+        onClose={() => setSelectedAircraft(null)}
+        onAircraftUpdated={() => {
+          onEdit(selectedAircraft);
+          setSelectedAircraft(null);
+        }}
+      />
     );
   }
 
@@ -45,7 +61,11 @@ export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) 
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {aircraft.map((aircraft) => (
-            <tr key={aircraft.id}>
+            <tr 
+              key={aircraft.id}
+              onClick={() => setSelectedAircraft(aircraft)}
+              className="hover:bg-gray-50 cursor-pointer"
+            >
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 {aircraft.tail_number}
               </td>
@@ -70,17 +90,24 @@ export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) 
                   to="/fbos"
                   className="text-blue-600 hover:text-blue-900 mr-4"
                   title="View on map"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <MapPin className="h-4 w-4" />
                 </Link>
                 <button
-                  onClick={() => onEdit(aircraft)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(aircraft);
+                  }}
                   className="text-blue-600 hover:text-blue-900 mr-4"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => onDelete(aircraft.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(aircraft.id);
+                  }}
                   className="text-red-600 hover:text-red-900"
                 >
                   <Trash2 className="h-4 w-4" />

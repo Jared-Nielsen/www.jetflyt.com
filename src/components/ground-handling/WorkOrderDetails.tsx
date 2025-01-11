@@ -18,6 +18,9 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Find accepted FBO association if it exists
+  const acceptedFBO = workOrder.fbo_associations.find(assoc => assoc.status === 'accepted');
+
   const handleStatusUpdate = async (newStatus: WorkOrder['status']) => {
     try {
       setLoading(true);
@@ -59,7 +62,6 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       setLoading(true);
       setError(null);
 
-      // Update work order
       const { error: updateError } = await supabase
         .from('work_orders')
         .update({
@@ -76,28 +78,6 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         .eq('id', workOrder.id);
 
       if (updateError) throw updateError;
-
-      // Update FBO associations
-      // First delete existing associations
-      const { error: deleteError } = await supabase
-        .from('work_order_fbos')
-        .delete()
-        .eq('work_order_id', workOrder.id);
-
-      if (deleteError) throw deleteError;
-
-      // Then create new associations
-      const fboAssociations = data.selected_fbos.map((fboId: string) => ({
-        work_order_id: workOrder.id,
-        fbo_id: fboId,
-        status: 'pending'
-      }));
-
-      const { error: insertError } = await supabase
-        .from('work_order_fbos')
-        .insert(fboAssociations);
-
-      if (insertError) throw insertError;
       
       await onWorkOrderUpdated();
       setShowEditModal(false);
@@ -115,7 +95,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Work Order Details</h3>
+            <h3 className="text-lg font-medium text-gray-900">Service Tender Details</h3>
             <div className="mt-2 space-y-1">
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="h-4 w-4 mr-1" />
@@ -150,7 +130,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                   onClick={() => setShowCancelModal(true)}
                   className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
                 >
-                  Cancel Order
+                  Cancel Tender
                 </button>
               </>
             )}
@@ -170,14 +150,19 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">FBO Locations</dt>
+              <dt className="text-sm font-medium text-gray-500">FBO Location</dt>
               <dd className="mt-1">
-                {workOrder.fbo_associations?.map(assoc => (
-                  <div key={assoc.id} className="text-sm">
-                    <div className="font-medium text-gray-900">{assoc.fbo.name}</div>
-                    <div className="text-gray-500">{assoc.fbo.icao?.code}</div>
+                {acceptedFBO ? (
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{acceptedFBO.fbo.name}</div>
+                    <div className="text-sm text-gray-500">{acceptedFBO.fbo.icao?.code}</div>
+                    <div className="text-sm font-bold text-green-600 mt-1">
+                      ${acceptedFBO.price.toFixed(2)}
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  <div className="text-sm text-gray-500">Pending FBO selection</div>
+                )}
               </dd>
             </div>
 
@@ -248,44 +233,14 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
           </dl>
         </div>
 
-        <div className="mt-6 flex justify-between items-center border-t border-gray-200 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Close
-          </button>
-          
-          {workOrder.status === 'pending' && (
-            <button
-              onClick={() => handleStatusUpdate('in_progress')}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              disabled={loading}
-            >
-              Start Work
-            </button>
-          )}
-
-          {workOrder.status === 'in_progress' && (
-            <button
-              onClick={() => handleStatusUpdate('completed')}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-              disabled={loading}
-            >
-              Mark Complete
-            </button>
-          )}
-        </div>
-
         <Modal
           isOpen={showCancelModal}
           onClose={() => setShowCancelModal(false)}
-          title="Cancel Work Order"
+          title="Cancel Service Tender"
         >
           <div className="p-6">
             <p className="text-gray-700 mb-4">
-              Are you sure you want to cancel this work order? This action cannot be undone.
+              Are you sure you want to cancel this service tender? This action cannot be undone.
             </p>
             {error && (
               <p className="text-red-600 mb-4">{error}</p>
@@ -303,7 +258,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                 className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
                 disabled={loading}
               >
-                {loading ? 'Cancelling...' : 'Yes, Cancel Order'}
+                {loading ? 'Cancelling...' : 'Yes, Cancel Tender'}
               </button>
             </div>
           </div>
@@ -312,7 +267,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title="Edit Work Order"
+          title="Edit Service Tender"
         >
           <WorkOrderForm
             initialData={{

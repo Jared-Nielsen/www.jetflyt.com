@@ -15,7 +15,12 @@ export function useAircraft() {
     try {
       const { data, error: supabaseError } = await supabase
         .from('aircraft')
-        .select('*')
+        .select(`
+          *,
+          type:type_id(*),
+          engine_type:engine_type_id(*),
+          fuel_type:fuel_type_id(*)
+        `)
         .order('created_at', { ascending: false });
 
       if (supabaseError) throw supabaseError;
@@ -33,7 +38,12 @@ export function useAircraft() {
       const { data, error: supabaseError } = await supabase
         .from('aircraft')
         .insert([newAircraft])
-        .select()
+        .select(`
+          *,
+          type:type_id(*),
+          engine_type:engine_type_id(*),
+          fuel_type:fuel_type_id(*)
+        `)
         .single();
 
       if (supabaseError) throw supabaseError;
@@ -51,7 +61,12 @@ export function useAircraft() {
         .from('aircraft')
         .update(updates)
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          type:type_id(*),
+          engine_type:engine_type_id(*),
+          fuel_type:fuel_type_id(*)
+        `)
         .single();
 
       if (supabaseError) throw supabaseError;

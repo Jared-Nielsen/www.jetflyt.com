@@ -1,6 +1,8 @@
+import { FileText, Briefcase, Route, Plane } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { KPIMetrics } from '../components/reports/KPIMetrics';
 import { TenderStatusChart } from '../components/reports/TenderStatusChart';
+import { ServiceTenderStatusChart } from '../components/reports/ServiceTenderStatusChart';
 import { useAuth } from '../contexts/AuthContext';
 import { LoadingScreen } from '../components/auth/LoadingScreen';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
@@ -35,10 +37,19 @@ export default function ReportsPage() {
         <div className="space-y-8">
           <KPIMetrics />
           
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Tender Status Distribution</h2>
-            <div className="h-80">
-              <TenderStatusChart />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Fuel Tender Distribution</h2>
+              <div className="h-80">
+                <TenderStatusChart />
+              </div>
+            </div>
+
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Service Tender Distribution</h2>
+              <div className="h-80">
+                <ServiceTenderStatusChart />
+              </div>
             </div>
           </div>
         </div>
