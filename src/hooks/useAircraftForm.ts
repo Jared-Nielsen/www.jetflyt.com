@@ -21,10 +21,10 @@ export function useAircraftForm(initialData?: Aircraft) {
     type_id: initialData?.type_id || '',
     manufacturer: initialData?.manufacturer || '',
     model: initialData?.model || '',
-    year: initialData?.year?.toString() || new Date().getFullYear().toString(),
-    max_range: initialData?.max_range?.toString() || '5000',
+    year: initialData?.year?.toString() || '',
+    max_range: initialData?.max_range?.toString() || '',
     fuel_type_id: initialData?.fuel_type_id || '',
-    fuel_capacity: initialData?.fuel_capacity?.toString() || '0',
+    fuel_capacity: initialData?.fuel_capacity?.toString() || '',
     engine_type_id: initialData?.engine_type_id || '',
     latitude: initialData?.latitude?.toString() || '29.9902',
     longitude: initialData?.longitude?.toString() || '-95.3368'
@@ -33,49 +33,67 @@ export function useAircraftForm(initialData?: Aircraft) {
   const [error, setError] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
-    if (!formData.tail_number.trim()) {
-      setError('Tail number is required');
-      return false;
-    }
-
-    if (!formData.type_id) {
-      setError('Aircraft type is required');
-      return false;
-    }
-
-    if (!formData.manufacturer.trim()) {
-      setError('Manufacturer is required');
-      return false;
-    }
-
-    if (!formData.model.trim()) {
-      setError('Model is required');
-      return false;
-    }
-
-    if (!formData.fuel_type_id) {
-      setError('Fuel type is required');
-      return false;
-    }
-
-    if (!formData.engine_type_id) {
-      setError('Engine type is required');
-      return false;
-    }
-
+    // Reset error
     setError(null);
+
+    // Required field validation
+    const requiredFields: Array<{ field: keyof FormState; label: string }> = [
+      { field: 'tail_number', label: 'Tail number' },
+      { field: 'type_id', label: 'Aircraft type' },
+      { field: 'manufacturer', label: 'Manufacturer' },
+      { field: 'fuel_type_id', label: 'Fuel type' },
+      { field: 'engine_type_id', label: 'Engine type' }
+    ];
+
+    for (const { field, label } of requiredFields) {
+      if (!formData[field]?.trim()) {
+        setError(`${label} is required`);
+        return false;
+      }
+    }
+
+    // Numeric field validation
+    const numericFields: Array<{ field: keyof FormState; label: string; min?: number; max?: number; required?: boolean }> = [
+      { field: 'year', label: 'Year', min: 1900, max: new Date().getFullYear(), required: false },
+      { field: 'max_range', label: 'Max range', min: 0, required: false },
+      { field: 'fuel_capacity', label: 'Fuel capacity', min: 0, required: false },
+      { field: 'latitude', label: 'Latitude', min: -90, max: 90 },
+      { field: 'longitude', label: 'Longitude', min: -180, max: 180 }
+    ];
+
+    for (const { field, label, min, max, required } of numericFields) {
+      // Skip empty non-required fields
+      if (!required && !formData[field]) {
+        continue;
+      }
+      
+      const value = Number(formData[field]);
+      if (isNaN(value)) {
+        setError(`${label} must be a valid number`);
+        return false;
+      }
+      if (min !== undefined && value < min) {
+        setError(`${label} must be at least ${min}`);
+        return false;
+      }
+      if (max !== undefined && value > max) {
+        setError(`${label} must be no more than ${max}`);
+        return false;
+      }
+    }
+
     return true;
   };
 
   const getFormattedData = () => ({
-    tail_number: formData.tail_number.trim(),
+    tail_number: formData.tail_number.trim().toUpperCase(),
     type_id: formData.type_id,
     manufacturer: formData.manufacturer.trim(),
-    model: formData.model.trim(),
-    year: parseInt(formData.year),
-    max_range: parseInt(formData.max_range),
+    model: formData.model.trim() || null,
+    year: formData.year ? parseInt(formData.year) : null,
+    max_range: formData.max_range ? parseInt(formData.max_range) : null,
     fuel_type_id: formData.fuel_type_id,
-    fuel_capacity: parseInt(formData.fuel_capacity),
+    fuel_capacity: formData.fuel_capacity ? parseInt(formData.fuel_capacity) : null,
     engine_type_id: formData.engine_type_id,
     latitude: parseFloat(formData.latitude),
     longitude: parseFloat(formData.longitude)
