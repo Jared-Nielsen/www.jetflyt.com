@@ -53,7 +53,13 @@ export function LeafletMap({ airports = [] }: LeafletMapProps) {
       const newSet = new Set(prev);
       if (visible) {
         newSet.add(aircraftId);
-        if (selectedAircraft && mapRef.current) {
+        // Only pan to aircraft if coordinates are valid
+        if (selectedAircraft && 
+            selectedAircraft.latitude != null && 
+            selectedAircraft.longitude != null && 
+            !isNaN(selectedAircraft.latitude) && 
+            !isNaN(selectedAircraft.longitude) && 
+            mapRef.current) {
           const currentZoom = mapRef.current.getZoom();
           mapRef.current.setView(
             [selectedAircraft.latitude, selectedAircraft.longitude],
@@ -87,10 +93,19 @@ export function LeafletMap({ airports = [] }: LeafletMapProps) {
           />
         ))}
         {activeLayers.icaos && airports.map((airport) => (
-          <AirportMarker key={airport.id} airport={airport} />
+          airport.latitude != null && 
+          airport.longitude != null && 
+          !isNaN(airport.latitude) && 
+          !isNaN(airport.longitude) && (
+            <AirportMarker key={airport.id} airport={airport} />
+          )
         ))}
         {user && aircraft?.map((aircraft) => (
-          visibleAircraft.has(aircraft.id) && (
+          visibleAircraft.has(aircraft.id) && 
+          aircraft.latitude != null && 
+          aircraft.longitude != null && 
+          !isNaN(aircraft.latitude) && 
+          !isNaN(aircraft.longitude) && (
             <AircraftMarker key={aircraft.id} aircraft={aircraft} />
           )
         ))}

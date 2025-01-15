@@ -17,43 +17,14 @@ export function STLViewer({ modelName, width = 300, height = 300 }: STLViewerPro
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const frameIdRef = useRef<number>(0);
-  const [modelExists, setModelExists] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if model exists first
-    const checkModel = async () => {
-      try {
-        if (!modelName) {
-          setModelExists(false);
-          return;
-        }
-
-        const filename = modelName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.stl';
-        console.log('Checking for STL file:', filename); // Debug log
-        
-        // Try to download the file directly instead of listing
-        const { data, error } = await supabase.storage
-          .from('stl')
-          .download(filename);
-
-        if (error) {
-          console.error('Error checking for STL file:', error);
-          setModelExists(false);
-          return;
-        }
-
-        setModelExists(true);
-      } catch (err) {
-        console.error('Error checking for STL file:', err);
-        setModelExists(false);
-      }
-    };
-
-    checkModel();
-  }, [modelName]);
-
-  useEffect(() => {
-    if (!containerRef.current || !modelExists) return;
+    if (!containerRef.current || !modelName) {
+      setIsLoading(false);
+      return;
+    }
 
     // Initialize scene
     const scene = new THREE.Scene();
@@ -98,14 +69,32 @@ export function STLViewer({ modelName, width = 300, height = 300 }: STLViewerPro
     // Load STL file
     const loadModel = async () => {
       try {
+        setIsLoading(true);
+        setError(null);
+        
         const filename = modelName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.stl';
-        console.log('Loading STL file:', filename); // Debug log
+        
+        // First check if the file exists
+        const { data: files, error: listError } = await supabase.storage
+          .from('stl')
+          .list('', {
+            search: filename
+          });
 
-        const { data, error } = await supabase.storage
+        if (listError) throw listError;
+        
+        // If file doesn't exist, show placeholder
+        if (!files || files.length === 0) {
+          setError('No 3D model available');
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error: downloadError } = await supabase.storage
           .from('stl')
           .download(filename);
 
-        if (error) throw error;
+        if (downloadError) throw downloadError;
 
         const loader = new STLLoader();
         const geometry = await new Promise<THREE.BufferGeometry>((resolve, reject) => {
@@ -149,13 +138,15 @@ export function STLViewer({ modelName, width = 300, height = 300 }: STLViewerPro
         }
 
         scene.add(mesh);
+        setIsLoading(false);
       } catch (err) {
         console.error('Error loading or processing STL file:', err);
-        setModelExists(false);
+        setError('Unable to load 3D model');
+        setIsLoading(false);
       }
     };
 
-    if (modelExists) {
+    if (modelName) {
       loadModel();
     }
 
@@ -179,17 +170,31 @@ export function STLViewer({ modelName, width = 300, height = 300 }: STLViewerPro
         controlsRef.current.dispose();
       }
     };
-  }, [modelExists, modelName, width, height]);
+  }, [modelName, width, height]);
 
-  if (!modelExists) {
+  if (isLoading) {
     return (
       <div 
         className="flex items-center justify-center bg-gray-50 rounded-lg"
         style={{ width, height }}
       >
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-900">{modelName}</p>
-          <p className="text-xs text-gray-500 mt-1">No 3D model available</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-sm text-gray-600">Loading model...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !modelName) {
+    return (
+      <div 
+        className="flex items-center justify-center bg-gray-50 rounded-lg"
+        style={{ width, height }}
+      >
+        <div className="text-center">
+          <p className="text-sm font-medium text-gray-900">{modelName || 'No model selected'}</p>
+          <p className="text-xs text-gray-500 mt-1">{error || 'No 3D model available'}</p>
         </div>
       </div>
     );

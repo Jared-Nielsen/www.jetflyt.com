@@ -18,6 +18,14 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
   // Generate the filename that would be used for the STL file
   const getStlFilename = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.stl';
 
+  // Format coordinates with null checks
+  const formatCoordinates = () => {
+    if (aircraft.latitude === null || aircraft.longitude === null) {
+      return 'Location not set';
+    }
+    return `${aircraft.latitude.toFixed(4)}°, ${aircraft.longitude.toFixed(4)}°`;
+  };
+
   return (
     <div className="bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
@@ -60,47 +68,47 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
               <dt className="text-sm font-medium text-gray-500">Manufacturer</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{aircraft.manufacturer}</div>
-                <div className="text-sm text-gray-500">{aircraft.model}</div>
+                <div className="text-sm text-gray-500">{aircraft.model || 'N/A'}</div>
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Year</dt>
-              <dd className="mt-1 text-sm text-gray-900">{aircraft.year}</dd>
+              <dd className="mt-1 text-sm text-gray-900">{aircraft.year || 'N/A'}</dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Engine Type</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.engine_type?.name}
+                {aircraft.engine_type?.name || 'N/A'}
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Fuel Type</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.fuel_type?.name}
+                {aircraft.fuel_type?.name || 'N/A'}
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Fuel Capacity</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.fuel_capacity.toLocaleString()} gallons
+                {aircraft.fuel_capacity ? `${aircraft.fuel_capacity.toLocaleString()} gallons` : 'N/A'}
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Max Range</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.max_range.toLocaleString()} nm
+                {aircraft.max_range ? `${aircraft.max_range.toLocaleString()} nm` : 'N/A'}
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">Current Location</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.latitude.toFixed(4)}°, {aircraft.longitude.toFixed(4)}°
+                {formatCoordinates()}
               </dd>
             </div>
           </dl>
