@@ -132,7 +132,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
         <option value="">Select aircraft</option>
         {aircraft?.map(a => (
           <option key={a.id} value={a.id}>
-            {a.tail_number} - {a.manufacturer} {a.model}
+            {a.tail_number} - {a.type?.name || 'Unknown Type'}
           </option>
         ))}
       </FormSelect>
