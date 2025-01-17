@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 interface TenderStatusCount {
   status: string;
@@ -10,6 +11,7 @@ export function TenderStatusChart() {
   const [data, setData] = useState<TenderStatusCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function fetchData() {
@@ -36,16 +38,16 @@ export function TenderStatusChart() {
         setLoading(false);
       } catch (err) {
         console.error('Error fetching tender status data:', err);
-        setError('Failed to load tender status data');
+        setError(t('reports.errors.loadFailed'));
         setLoading(false);
       }
     }
 
     fetchData();
-  }, []);
+  }, [t]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-full">Loading...</div>;
+    return <div className="flex justify-center items-center h-full">{t('common.loading')}</div>;
   }
 
   if (error) {
@@ -65,7 +67,9 @@ export function TenderStatusChart() {
       <div className="flex flex-col space-y-2">
         {data.map(({ status, count }) => (
           <div key={status} className="flex items-center">
-            <div className="w-32 text-sm font-medium capitalize">{status}</div>
+            <div className="w-32 text-sm font-medium capitalize">
+              {t(`reports.status.${status}`)}
+            </div>
             <div className="flex-1 mx-2">
               <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
                 <div 
@@ -83,7 +87,7 @@ export function TenderStatusChart() {
 
       <div className="border-t pt-4">
         <div className="text-sm text-gray-500">
-          Total Tenders: {total}
+          {t('reports.charts.total')}: {total}
         </div>
       </div>
     </div>

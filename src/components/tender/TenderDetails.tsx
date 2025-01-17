@@ -6,6 +6,7 @@ import { TenderForm } from './TenderForm';
 import { useTender } from '../../hooks/useTender';
 import type { Tender } from '../../types/tender';
 import { Pencil, Calendar, ArrowRight, CalendarCheck } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TenderDetailsProps {
   tender: Tender;
@@ -17,6 +18,8 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const { cancelTender, updateTender, loading, error } = useTender();
+  const { t } = useTranslation();
+  
   const totalValue = tender.gallons * tender.target_price;
 
   const isAnnual = tender.start_date && tender.end_date && 
@@ -56,9 +59,9 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Tender Details</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('tenders.details.title')}</h3>
             <div className="mt-2 text-sm text-gray-500">
-              Created {new Date(tender.created_at).toLocaleDateString()}
+              {t('tenders.details.created')} {new Date(tender.created_at).toLocaleDateString()}
             </div>
             {(tender.start_date || tender.end_date) && (
               <div className="mt-2 flex items-center text-sm text-gray-500">
@@ -88,13 +91,13 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
                   className="flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 border border-blue-600 rounded"
                 >
                   <Pencil className="h-4 w-4 mr-1" />
-                  Edit
+                  {t('tenders.form.buttons.edit')}
                 </button>
                 <button
                   onClick={() => setShowCancelModal(true)}
                   className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
                 >
-                  Cancel Tender
+                  {t('tenders.form.buttons.cancelTender')}
                 </button>
               </>
             )}
@@ -104,7 +107,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
         <div className="mt-6 border-t border-gray-200 pt-6">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Aircraft</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('tenders.details.aircraft')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{tender.aircraft.tail_number}</div>
                 <div className="text-sm text-gray-500">
@@ -114,7 +117,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Location</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('tenders.details.location')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{tender.icao.code}</div>
                 <div className="text-sm text-gray-500">{tender.icao.name}</div>
@@ -122,25 +125,25 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Fuel Request</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('tenders.details.fuelRequest')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {tender.gallons.toLocaleString()} gallons
+                {tender.gallons.toLocaleString()} gal
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Best Current Price</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('tenders.details.bestPrice')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 ${tender.target_price.toFixed(2)}/gal
                 <div className="text-sm text-gray-500">
-                  Total Value: ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {t('tenders.details.totalValue')}: ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </div>
               </dd>
             </div>
 
             {tender.description && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500">Description</dt>
+                <dt className="text-sm font-medium text-gray-500">{t('tenders.details.description')}</dt>
                 <dd className="mt-1 text-sm text-gray-900">{tender.description}</dd>
               </div>
             )}
@@ -148,7 +151,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
         </div>
 
         <div className="mt-8">
-          <h4 className="text-lg font-medium text-gray-900">FBO Responses</h4>
+          <h4 className="text-lg font-medium text-gray-900">{t('tenders.details.fboResponses')}</h4>
           <div className="mt-4">
             <FBOOfferList 
               offers={tender.fbo_tenders}
@@ -165,21 +168,21 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Close
+            {t('tenders.form.buttons.close')}
           </button>
           <div className="text-sm text-gray-500">
-            Tender ID: {tender.id}
+            {t('tenders.details.tenderId')}: {tender.id}
           </div>
         </div>
 
         <Modal
           isOpen={showCancelModal}
           onClose={() => setShowCancelModal(false)}
-          title="Cancel Tender"
+          title={t('tenders.form.title.cancel')}
         >
           <div className="p-6">
             <p className="text-gray-700 mb-4">
-              Are you sure you want to cancel this tender? This action cannot be undone.
+              {t('tenders.form.confirmCancel')}
             </p>
             {error && (
               <p className="text-red-600 mb-4">{error}</p>
@@ -190,14 +193,14 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                 disabled={loading}
               >
-                No, Keep It
+                {t('tenders.form.buttons.keepIt')}
               </button>
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
                 disabled={loading}
               >
-                {loading ? 'Cancelling...' : 'Yes, Cancel Tender'}
+                {loading ? t('tenders.form.buttons.cancelling') : t('tenders.form.buttons.confirmCancel')}
               </button>
             </div>
           </div>
@@ -206,7 +209,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title="Edit Tender"
+          title={t('tenders.form.title.edit')}
         >
           <TenderForm
             initialData={tender}

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { WorkOrderDetails } from './WorkOrderDetails';
 import { WorkOrderStatus } from './WorkOrderStatus';
-import { supabase } from '../../lib/supabase';
+import { WorkOrderDetails } from './WorkOrderDetails';
 import type { WorkOrder } from '../../types/workOrder';
+import { useTranslation } from 'react-i18next';
 
 interface WorkOrderListProps {
   workOrders: WorkOrder[];
@@ -11,113 +11,12 @@ interface WorkOrderListProps {
 
 export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderListProps) {
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleAcceptOffer = async (
-    e: React.MouseEvent,
-    workOrderId: string,
-    fboAssociationId: string
-  ) => {
-    e.stopPropagation();
-    try {
-      setLoading(true);
-
-      // Start a transaction by using the same timestamp for all updates
-      const timestamp = new Date().toISOString();
-
-      // Update the selected FBO association to accepted
-      const { error: acceptError } = await supabase
-        .from('work_order_fbos')
-        .update({ 
-          status: 'accepted',
-          updated_at: timestamp 
-        })
-        .eq('id', fboAssociationId);
-
-      if (acceptError) throw acceptError;
-
-      // Update all other FBO associations for this work order to blank status
-      const { error: rejectError } = await supabase
-        .from('work_order_fbos')
-        .update({ 
-          status: '',
-          updated_at: timestamp 
-        })
-        .eq('work_order_id', workOrderId)
-        .neq('id', fboAssociationId);
-
-      if (rejectError) throw rejectError;
-
-      // Update the work order status to accepted
-      const { error: workOrderError } = await supabase
-        .from('work_orders')
-        .update({ 
-          status: 'accepted',
-          updated_at: timestamp 
-        })
-        .eq('id', workOrderId);
-
-      if (workOrderError) throw workOrderError;
-
-      await onWorkOrdersUpdated();
-    } catch (err) {
-      console.error('Error accepting offer:', err);
-      alert('Failed to accept offer. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const FBOList = ({ workOrder }: { workOrder: WorkOrder }) => {
-    // Sort FBO associations alphabetically by FBO name
-    const sortedAssociations = [...workOrder.fbo_associations].sort((a, b) => 
-      a.fbo.name.localeCompare(b.fbo.name)
-    );
-
-    // Check if any FBO has been accepted
-    const hasAcceptedFBO = sortedAssociations.some(assoc => assoc.status === 'accepted');
-
-    return (
-      <div className="space-y-1">
-        {sortedAssociations.map(assoc => (
-          <div key={assoc.id} className="flex justify-between items-center">
-            <div>
-              <span className="font-medium">{assoc.fbo.name}</span>
-              <span className="text-gray-500 ml-1">({assoc.fbo.icao?.code})</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              {assoc.price > 0 && (
-                <span className="text-sm font-medium text-gray-900">
-                  ${assoc.price.toFixed(2)}
-                </span>
-              )}
-              {/* Show Accept button or status badge */}
-              <div className="w-16 text-right"> {/* Fixed width container for consistent spacing */}
-                {!hasAcceptedFBO && assoc.status === 'pending' ? (
-                  <button
-                    onClick={(e) => handleAcceptOffer(e, workOrder.id, assoc.id)}
-                    disabled={loading}
-                    className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-full hover:bg-green-700 disabled:opacity-50"
-                  >
-                    Accept
-                  </button>
-                ) : assoc.status === 'accepted' && (
-                  <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-                    Accepted
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
+  const { t } = useTranslation();
 
   if (workOrders.length === 0) {
     return (
       <div className="text-center py-8 bg-white rounded-lg shadow">
-        <p className="text-gray-500">No service tenders found.</p>
+        <p className="text-gray-500">{t('handling.noServiceTenders')}</p>
       </div>
     );
   }
@@ -163,8 +62,10 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
           </div>
 
           <div className="mt-3 border-t pt-2">
-            <div className="text-sm font-medium text-gray-900 mb-1">FBO Locations:</div>
-            <FBOList workOrder={workOrder} />
+            <div className="text-sm font-medium text-gray-900 mb-1">{t('handling.list.fboLocations')}:</div>
+            <div className="text-sm text-gray-500">
+              {workOrder.fbo_associations.length} {t('handling.list.fboCount', { count: workOrder.fbo_associations.length })}
+            </div>
           </div>
 
           {workOrder.description && (
@@ -183,19 +84,19 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
       <thead className="bg-gray-50">
         <tr>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Aircraft
+            {t('handling.list.columns.aircraft')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Service
+            {t('handling.list.columns.service')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            FBO Locations
+            {t('handling.list.columns.fboLocations')}
           </th>
           <th scope="col" className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Description
+            {t('handling.list.columns.description')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Status
+            {t('handling.list.columns.status')}
           </th>
         </tr>
       </thead>
@@ -223,7 +124,9 @@ export function WorkOrderList({ workOrders, onWorkOrdersUpdated }: WorkOrderList
               </div>
             </td>
             <td className="px-6 py-4">
-              <FBOList workOrder={workOrder} />
+              <div className="text-sm text-gray-900">
+                {workOrder.fbo_associations.length} {t('handling.list.fboCount', { count: workOrder.fbo_associations.length })}
+              </div>
             </td>
             <td className="hidden lg:table-cell px-6 py-4">
               <div className="text-sm text-gray-900">

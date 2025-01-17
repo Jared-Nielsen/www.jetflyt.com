@@ -3,6 +3,7 @@ import { Pencil, Trash2, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Aircraft } from '../../types/aircraft';
 import { AircraftDetails } from './AircraftDetails';
+import { useTranslation } from 'react-i18next';
 
 interface AircraftListProps {
   aircraft: Aircraft[];
@@ -12,11 +13,12 @@ interface AircraftListProps {
 
 export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) {
   const [selectedAircraft, setSelectedAircraft] = useState<Aircraft | null>(null);
+  const { t } = useTranslation();
 
   if (aircraft.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No aircraft registered yet.</p>
+        <p className="text-gray-500">{t('fleet.list.noAircraft')}</p>
       </div>
     );
   }
@@ -40,22 +42,22 @@ export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) 
         <thead className="bg-gray-50">
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Tail Number
+              {t('fleet.list.columns.tailNumber')}
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Aircraft
+              {t('fleet.list.columns.aircraft')}
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Year
+              {t('fleet.list.columns.year')}
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Range & Fuel
+              {t('fleet.list.columns.range')}
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Engine
+              {t('fleet.list.columns.engine')}
             </th>
             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
+              {t('fleet.list.columns.actions')}
             </th>
           </tr>
         </thead>
@@ -89,10 +91,11 @@ export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) 
                 <Link
                   to="/fbos"
                   className="text-blue-600 hover:text-blue-900 mr-4"
-                  title="View on map"
+                  title={t('fleet.actions.viewOnMap')}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <MapPin className="h-4 w-4" />
+                  <span className="sr-only">{t('fleet.actions.viewOnMap')}</span>
                 </Link>
                 <button
                   onClick={(e) => {
@@ -100,17 +103,23 @@ export function AircraftList({ aircraft, onEdit, onDelete }: AircraftListProps) 
                     onEdit(aircraft);
                   }}
                   className="text-blue-600 hover:text-blue-900 mr-4"
+                  title={t('fleet.actions.edit')}
                 >
                   <Pencil className="h-4 w-4" />
+                  <span className="sr-only">{t('fleet.actions.edit')}</span>
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDelete(aircraft.id);
+                    if (window.confirm(t('fleet.confirmDelete'))) {
+                      onDelete(aircraft.id);
+                    }
                   }}
                   className="text-red-600 hover:text-red-900"
+                  title={t('fleet.actions.delete')}
                 >
                   <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">{t('fleet.actions.delete')}</span>
                 </button>
               </td>
             </tr>

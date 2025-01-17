@@ -2,6 +2,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useAircraft } from '../../hooks/useAircraft';
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AircraftListProps {
   onAircraftToggle: (aircraftId: string, visible: boolean) => void;
@@ -12,6 +13,7 @@ export function AircraftList({ onAircraftToggle, visibleAircraft }: AircraftList
   const { user } = useAuth();
   const { aircraft, loading } = useAircraft();
   const [isExpanded, setIsExpanded] = useState(true);
+  const { t } = useTranslation();
 
   if (!user || loading || aircraft.length === 0) return null;
 
@@ -21,7 +23,7 @@ export function AircraftList({ onAircraftToggle, visibleAircraft }: AircraftList
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 rounded-t-lg hover:bg-gray-100"
       >
-        <span className="font-medium text-gray-700">Your Aircraft</span>
+        <span className="font-medium text-gray-700">{t('map.aircraft.title')}</span>
         {isExpanded ? (
           <ChevronUp className="h-4 w-4 text-gray-500" />
         ) : (

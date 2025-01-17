@@ -3,6 +3,7 @@ import { TenderStatus } from './TenderStatus';
 import { TenderDetails } from './TenderDetails';
 import type { Tender } from '../../types/tender';
 import { useTender } from '../../hooks/useTender';
+import { useTranslation } from 'react-i18next';
 
 interface TenderListProps {
   tenders: (Tender & {
@@ -15,11 +16,12 @@ interface TenderListProps {
 
 export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
   const [selectedTender, setSelectedTender] = useState<typeof tenders[0] | null>(null);
+  const { t } = useTranslation();
 
   if (tenders.length === 0) {
     return (
       <div className="text-center py-8 bg-white rounded-lg shadow">
-        <p className="text-gray-500">No tender offers found.</p>
+        <p className="text-gray-500">{t('tenders.offers.noResponses')}</p>
       </div>
     );
   }
@@ -74,7 +76,7 @@ export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
           </div>
 
           <div className="mt-2 text-xs text-gray-500">
-            {tender.fbo_tenders.length} FBO response{tender.fbo_tenders.length !== 1 ? 's' : ''}
+            {tender.fbo_tenders.length} FBO {tender.fbo_tenders.length !== 1 ? t('tenders.offers.responses') : t('tenders.offers.response')}
           </div>
         </div>
       ))}
@@ -87,22 +89,22 @@ export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
       <thead className="bg-gray-50">
         <tr>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Aircraft
+            {t('tenders.details.aircraft')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Location
+            {t('tenders.details.location')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Fuel Request
+            {t('tenders.details.fuelRequest')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Current Best Price
+            {t('tenders.details.bestPrice')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Status
+            {t('tenders.status.title')}
           </th>
           <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            FBO Responses
+            {t('tenders.details.fboResponses')}
           </th>
         </tr>
       </thead>
@@ -131,7 +133,7 @@ export function TenderList({ tenders, onTendersUpdated }: TenderListProps) {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-gray-900">
-                {tender.gallons.toLocaleString()} gallons
+                {tender.gallons.toLocaleString()} gal
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">

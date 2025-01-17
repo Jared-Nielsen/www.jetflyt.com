@@ -5,6 +5,7 @@ import { WorkOrderForm } from './WorkOrderForm';
 import { supabase } from '../../lib/supabase';
 import type { WorkOrder } from '../../types/workOrder';
 import { Users, UserCircle2, Dog, Calendar, Pencil, PlaneLanding, PlaneTakeoff } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface WorkOrderDetailsProps {
   workOrder: WorkOrder;
@@ -17,6 +18,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   // Find accepted FBO association if it exists
   const acceptedFBO = workOrder.fbo_associations.find(assoc => assoc.status === 'accepted');
@@ -42,7 +44,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       onClose();
     } catch (err) {
       console.error('Error updating work order:', err);
-      setError('Failed to update work order status');
+      setError(t('handling.errors.updateFailed'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       onClose();
     } catch (err) {
       console.error('Error updating work order:', err);
-      setError('Failed to update work order');
+      setError(t('handling.errors.updateFailed'));
     } finally {
       setLoading(false);
     }
@@ -95,22 +97,22 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Service Tender Details</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('handling.details.title')}</h3>
             <div className="mt-2 space-y-1">
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar className="h-4 w-4 mr-1" />
-                Created: {new Date(workOrder.created_at).toLocaleString()}
+                {t('handling.details.created')}: {new Date(workOrder.created_at).toLocaleString()}
               </div>
               {workOrder.arrival_date && (
                 <div className="flex items-center text-sm text-gray-500">
                   <PlaneLanding className="h-4 w-4 mr-1 text-blue-500" />
-                  Arrival: {new Date(workOrder.arrival_date).toLocaleString()}
+                  {t('handling.details.arrival')}: {new Date(workOrder.arrival_date).toLocaleString()}
                 </div>
               )}
               {workOrder.departure_date && (
                 <div className="flex items-center text-sm text-gray-500">
                   <PlaneTakeoff className="h-4 w-4 mr-1 text-blue-500" />
-                  Departure: {new Date(workOrder.departure_date).toLocaleString()}
+                  {t('handling.details.departure')}: {new Date(workOrder.departure_date).toLocaleString()}
                 </div>
               )}
             </div>
@@ -124,13 +126,13 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                   className="flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 border border-blue-600 rounded"
                 >
                   <Pencil className="h-4 w-4 mr-1" />
-                  Edit
+                  {t('handling.form.buttons.edit')}
                 </button>
                 <button
                   onClick={() => setShowCancelModal(true)}
                   className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-500 border border-red-600 rounded"
                 >
-                  Cancel Tender
+                  {t('handling.form.buttons.cancelTender')}
                 </button>
               </>
             )}
@@ -140,7 +142,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         <div className="mt-6 border-t border-gray-200 pt-6">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Aircraft</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('handling.details.aircraft')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{workOrder.aircraft.tail_number}</div>
                 <div className="text-sm text-gray-500">
@@ -150,24 +152,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">FBO Location</dt>
-              <dd className="mt-1">
-                {acceptedFBO ? (
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">{acceptedFBO.fbo.name}</div>
-                    <div className="text-sm text-gray-500">{acceptedFBO.fbo.icao?.code}</div>
-                    <div className="text-sm font-bold text-green-600 mt-1">
-                      ${acceptedFBO.price.toFixed(2)}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500">Pending FBO selection</div>
-                )}
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Service</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('handling.details.service')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{workOrder.service.name}</div>
                 <div className="text-sm text-gray-500">{workOrder.service.type.name}</div>
@@ -175,14 +160,14 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Quantity</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('handling.details.quantity')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {workOrder.quantity} units
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Requested Date</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('handling.details.requestedDate')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {new Date(workOrder.requested_date).toLocaleString()}
               </dd>
@@ -190,7 +175,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
 
             {workOrder.completed_date && (
               <div>
-                <dt className="text-sm font-medium text-gray-500">Completed Date</dt>
+                <dt className="text-sm font-medium text-gray-500">{t('handling.details.completedDate')}</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {new Date(workOrder.completed_date).toLocaleString()}
                 </dd>
@@ -198,18 +183,18 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
             )}
 
             <div className="sm:col-span-2">
-              <dt className="text-sm font-medium text-gray-500">Description</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('handling.details.description')}</dt>
               <dd className="mt-1 text-sm text-gray-900">{workOrder.description}</dd>
             </div>
 
             <div className="sm:col-span-2 border-t pt-4">
-              <dt className="text-sm font-medium text-gray-500 mb-4">Passenger Information</dt>
+              <dt className="text-sm font-medium text-gray-500 mb-4">{t('handling.details.passengerInfo')}</dt>
               <dd className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg">
                   <Users className="h-5 w-5 text-gray-400" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{workOrder.passenger_count}</div>
-                    <div className="text-xs text-gray-500">Passengers</div>
+                    <div className="text-xs text-gray-500">{t('handling.details.passengers')}</div>
                   </div>
                 </div>
 
@@ -217,7 +202,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                   <UserCircle2 className="h-5 w-5 text-gray-400" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{workOrder.crew_count}</div>
-                    <div className="text-xs text-gray-500">Crew</div>
+                    <div className="text-xs text-gray-500">{t('handling.details.crew')}</div>
                   </div>
                 </div>
 
@@ -225,7 +210,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                   <Dog className="h-5 w-5 text-gray-400" />
                   <div>
                     <div className="text-sm font-medium text-gray-900">{workOrder.pet_count}</div>
-                    <div className="text-xs text-gray-500">Pets</div>
+                    <div className="text-xs text-gray-500">{t('handling.details.pets')}</div>
                   </div>
                 </div>
               </dd>
@@ -236,11 +221,11 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         <Modal
           isOpen={showCancelModal}
           onClose={() => setShowCancelModal(false)}
-          title="Cancel Service Tender"
+          title={t('handling.form.title.cancel')}
         >
           <div className="p-6">
             <p className="text-gray-700 mb-4">
-              Are you sure you want to cancel this service tender? This action cannot be undone.
+              {t('handling.form.confirmCancel')}
             </p>
             {error && (
               <p className="text-red-600 mb-4">{error}</p>
@@ -251,14 +236,14 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
                 disabled={loading}
               >
-                No, Keep It
+                {t('handling.form.buttons.keepIt')}
               </button>
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
                 disabled={loading}
               >
-                {loading ? 'Cancelling...' : 'Yes, Cancel Tender'}
+                {loading ? t('handling.form.buttons.cancelling') : t('handling.form.buttons.confirmCancel')}
               </button>
             </div>
           </div>
@@ -267,7 +252,7 @@ export function WorkOrderDetails({ workOrder, onClose, onWorkOrderUpdated }: Wor
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title="Edit Service Tender"
+          title={t('handling.form.title.edit')}
         >
           <WorkOrderForm
             initialData={{

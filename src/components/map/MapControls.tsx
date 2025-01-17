@@ -3,6 +3,7 @@ import { CollapsibleControl } from './CollapsibleControl';
 import { WeatherControl } from './WeatherControl';
 import { MapPin } from 'lucide-react';
 import type { WeatherLayer } from '../../config/weather';
+import { useTranslation } from 'react-i18next';
 
 interface MapControlsProps {
   activeLayers: {
@@ -18,9 +19,11 @@ interface MapControlsProps {
 }
 
 export function MapControls({ activeLayers, onLayersChange }: MapControlsProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="absolute top-4 right-4 z-[1000] space-y-2">
-      <CollapsibleControl title="Map Layers" defaultCollapsed={false}>
+      <CollapsibleControl title={t('map.layers.title')} defaultCollapsed={false}>
         <div className="space-y-4">
           <WeatherControl
             activeLayers={activeLayers}
@@ -28,7 +31,7 @@ export function MapControls({ activeLayers, onLayersChange }: MapControlsProps) 
           />
           
           <div className="border-t pt-2">
-            <h3 className="text-sm font-medium text-gray-700 px-3 mb-2">Map Features</h3>
+            <h3 className="text-sm font-medium text-gray-700 px-3 mb-2">{t('map.layers.mapFeatures')}</h3>
             <button
               onClick={() => onLayersChange({
                 ...activeLayers,
@@ -41,7 +44,7 @@ export function MapControls({ activeLayers, onLayersChange }: MapControlsProps) 
               }`}
             >
               <MapPin className="h-5 w-5" />
-              <span className="text-sm">Airports</span>
+              <span className="text-sm">{t('map.layers.airports')}</span>
             </button>
           </div>
         </div>

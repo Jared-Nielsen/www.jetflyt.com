@@ -4,6 +4,7 @@ import { AddLegModal } from './AddLegModal';
 import { EditLegModal } from './EditLegModal';
 import { LegStatus } from './LegStatus';
 import type { Route, Leg } from '../../types/trip';
+import { useTranslation } from 'react-i18next';
 
 interface LegListProps {
   route: Route;
@@ -13,6 +14,7 @@ interface LegListProps {
 export function LegList({ route, onLegAdded }: LegListProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingLeg, setEditingLeg] = useState<Leg | null>(null);
+  const { t } = useTranslation();
 
   // Sort legs by scheduled departure
   const sortedLegs = [...route.legs].sort((a, b) => 
@@ -22,13 +24,13 @@ export function LegList({ route, onLegAdded }: LegListProps) {
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-sm font-medium text-gray-700">Legs</h4>
+        <h4 className="text-sm font-medium text-gray-700">{t('trip.routes.legs')}</h4>
         <button
           onClick={() => setShowAddModal(true)}
           className="flex items-center space-x-1 px-2 py-1 text-xs rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
         >
           <Plus className="h-3 w-3" />
-          <span>Add Leg</span>
+          <span>{t('trip.routes.addLeg')}</span>
         </button>
       </div>
 

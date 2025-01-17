@@ -1,6 +1,7 @@
 import React from 'react';
 import { Cloud, Droplets, Wind, Thermometer, GaugeCircle, AlertTriangle } from 'lucide-react';
 import type { WeatherLayer } from '../../config/weather';
+import { useTranslation } from 'react-i18next';
 
 interface WeatherControlProps {
   activeLayers: {
@@ -16,12 +17,14 @@ interface WeatherControlProps {
 }
 
 export function WeatherControl({ activeLayers, onLayersChange }: WeatherControlProps) {
+  const { t } = useTranslation();
+
   const layers: { id: WeatherLayer; icon: React.ReactNode; label: string }[] = [
-    { id: 'temp', icon: <Thermometer className="h-5 w-5" />, label: 'Temperature' },
-    { id: 'clouds', icon: <Cloud className="h-5 w-5" />, label: 'Clouds' },
-    { id: 'precipitation', icon: <Droplets className="h-5 w-5" />, label: 'Precipitation' },
-    { id: 'wind', icon: <Wind className="h-5 w-5" />, label: 'Wind' },
-    { id: 'pressure', icon: <GaugeCircle className="h-5 w-5" />, label: 'Pressure' }
+    { id: 'temp', icon: <Thermometer className="h-5 w-5" />, label: t('map.layers.weather.temperature') },
+    { id: 'clouds', icon: <Cloud className="h-5 w-5" />, label: t('map.layers.weather.clouds') },
+    { id: 'precipitation', icon: <Droplets className="h-5 w-5" />, label: t('map.layers.weather.precipitation') },
+    { id: 'wind', icon: <Wind className="h-5 w-5" />, label: t('map.layers.weather.wind') },
+    { id: 'pressure', icon: <GaugeCircle className="h-5 w-5" />, label: t('map.layers.weather.pressure') }
   ];
 
   const toggleWeatherLayer = (layer: WeatherLayer) => {
@@ -43,7 +46,7 @@ export function WeatherControl({ activeLayers, onLayersChange }: WeatherControlP
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700 px-3">Weather</h3>
+        <h3 className="text-sm font-medium text-gray-700 px-3">{t('map.layers.weather')}</h3>
         {layers.map(({ id, icon, label }) => (
           <button
             key={id}
@@ -62,7 +65,7 @@ export function WeatherControl({ activeLayers, onLayersChange }: WeatherControlP
       </div>
 
       <div className="border-t pt-2">
-        <h3 className="text-sm font-medium text-gray-700 px-3 mb-2">Alerts</h3>
+        <h3 className="text-sm font-medium text-gray-700 px-3 mb-2">{t('map.layers.alerts')}</h3>
         <button
           onClick={toggleNotams}
           className={`flex items-center space-x-2 px-3 py-2 w-full rounded-md transition-colors ${
@@ -72,7 +75,7 @@ export function WeatherControl({ activeLayers, onLayersChange }: WeatherControlP
           }`}
         >
           <AlertTriangle className="h-5 w-5" />
-          <span className="text-sm">NOTAMs</span>
+          <span className="text-sm">{t('map.layers.notams')}</span>
         </button>
       </div>
     </div>

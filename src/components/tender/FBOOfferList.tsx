@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { Modal } from '../shared/Modal';
 import { useTender } from '../../hooks/useTender';
 import type { FBOTender } from '../../types/tender';
+import { useTranslation } from 'react-i18next';
 
 interface FBOOfferListProps {
   offers: FBOTender[];
@@ -15,6 +16,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
   const [showContractModal, setShowContractModal] = useState(false);
   const [selectedFBO, setSelectedFBO] = useState<FBOTender['fbo'] | null>(null);
   const { acceptOffer, loading } = useTender();
+  const { t } = useTranslation();
 
   const handleAcceptOffer = async (offerId: string, fbo: FBOTender['fbo']) => {
     try {
@@ -24,14 +26,14 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
       setShowContractModal(true);
     } catch (err) {
       console.error('Error accepting offer:', err);
-      alert('Failed to accept offer. Please try again.');
+      alert(t('tenders.offers.errors.acceptFailed'));
     }
   };
 
   if (offers.length === 0) {
     return (
       <div className="text-sm text-gray-500 italic">
-        No FBO responses yet.
+        {t('tenders.offers.noResponses')}
       </div>
     );
   }
@@ -43,25 +45,25 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
           <thead>
             <tr>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                FBO
+                {t('tenders.offers.columns.fbo')}
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Location
+                {t('tenders.offers.columns.location')}
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Offer Price
+                {t('tenders.offers.columns.offerPrice')}
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Cost
+                {t('tenders.offers.columns.totalCost')}
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Taxes & Fees
+                {t('tenders.offers.columns.taxesAndFees')}
               </th>
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Final Cost
+                {t('tenders.offers.columns.finalCost')}
               </th>
               <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                {t('tenders.offers.columns.actions')}
               </th>
             </tr>
           </thead>
@@ -137,7 +139,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                         className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-black"
                       >
                         <Check className="h-4 w-4 mr-1" />
-                        Send Contract
+                        {t('tenders.offers.buttons.sendContract')}
                       </button>
                     ) : tenderStatus === 'pending' && (
                       <button
@@ -145,7 +147,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                         className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         disabled={loading}
                       >
-                        Accept
+                        {t('tenders.offers.buttons.accept')}
                       </button>
                     )}
                   </td>
@@ -159,11 +161,11 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
       <Modal
         isOpen={showContractModal}
         onClose={() => setShowContractModal(false)}
-        title="Contract Confirmation"
+        title={t('tenders.offers.modal.contractTitle')}
       >
         <div className="p-6">
           <p className="text-lg text-gray-700">
-            The Contract has been sent to {selectedFBO?.name}
+            {t('tenders.offers.modal.contractSent', { fbo: selectedFBO?.name })}
           </p>
           <div className="mt-6 flex justify-end">
             <button
@@ -173,7 +175,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
               }}
               className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             >
-              Close
+              {t('tenders.offers.buttons.close')}
             </button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { AddRouteModal } from '../dispatch/AddRouteModal';
 import { EditRouteModal } from '../dispatch/EditRouteModal';
 import { LegList } from '../dispatch/LegList';
 import type { Trip, Route } from '../../types/trip';
+import { useTranslation } from 'react-i18next';
 
 interface RouteListProps {
   trip: Trip;
@@ -14,21 +15,22 @@ export function RouteList({ trip }: RouteListProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingRoute, setEditingRoute] = useState<Route | null>(null);
   const { routes, loading, refetch } = useRoutes(trip.id);
+  const { t } = useTranslation();
 
   if (loading) {
-    return <div>Loading routes...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Routes</h3>
+        <h3 className="text-lg font-medium text-gray-900">{t('trip.routes.title')}</h3>
         <button
           onClick={() => setShowAddModal(true)}
           className="flex items-center space-x-1 px-2 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
         >
           <Plus className="h-4 w-4" />
-          <span>Add Route</span>
+          <span>{t('trip.routes.addRoute')}</span>
         </button>
       </div>
 
@@ -51,10 +53,10 @@ export function RouteList({ trip }: RouteListProps) {
                   className="text-sm text-gray-600 hover:text-gray-900 flex items-center space-x-1"
                 >
                   <Pencil className="h-4 w-4" />
-                  <span>Edit</span>
+                  <span>{t('trip.form.buttons.edit')}</span>
                 </button>
                 <div className="text-sm text-gray-500">
-                  {route.legs.length} {route.legs.length === 1 ? 'leg' : 'legs'}
+                  {route.legs.length} {t(`trip.routes.legCount_${route.legs.length === 1 ? 'one' : 'other'}`)}
                 </div>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plane, FileText, Route, Briefcase } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 interface Metrics {
   tripCount: number;
@@ -20,6 +21,7 @@ export function KPIMetrics() {
     loading: true,
     error: null
   });
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function fetchMetrics() {
@@ -61,13 +63,13 @@ export function KPIMetrics() {
         setMetrics(prev => ({
           ...prev,
           loading: false,
-          error: 'Failed to load metrics'
+          error: t('reports.errors.loadFailed')
         }));
       }
     }
 
     fetchMetrics();
-  }, []);
+  }, [t]);
 
   if (metrics.error) {
     return (
@@ -79,7 +81,7 @@ export function KPIMetrics() {
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-      {/* Top Row - Tenders */}
+      {/* Tenders */}
       <div className="bg-white overflow-hidden shadow rounded-lg">
         <div className="p-5">
           <div className="flex items-center">
@@ -88,7 +90,9 @@ export function KPIMetrics() {
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">Total Fuel Tenders</dt>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  {t('reports.metrics.tenderCount')}
+                </dt>
                 <dd className="flex items-baseline">
                   <div className="text-2xl font-semibold text-gray-900">
                     {metrics.loading ? '...' : metrics.tenderCount}
@@ -108,7 +112,9 @@ export function KPIMetrics() {
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">Total Service Tenders</dt>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  {t('reports.metrics.serviceTenderCount')}
+                </dt>
                 <dd className="flex items-baseline">
                   <div className="text-2xl font-semibold text-gray-900">
                     {metrics.loading ? '...' : metrics.serviceTenderCount}
@@ -120,7 +126,7 @@ export function KPIMetrics() {
         </div>
       </div>
 
-      {/* Bottom Row - Trips */}
+      {/* Trips */}
       <div className="bg-white overflow-hidden shadow rounded-lg">
         <div className="p-5">
           <div className="flex items-center">
@@ -129,7 +135,9 @@ export function KPIMetrics() {
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">Total Trips</dt>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  {t('reports.metrics.tripCount')}
+                </dt>
                 <dd className="flex items-baseline">
                   <div className="text-2xl font-semibold text-gray-900">
                     {metrics.loading ? '...' : metrics.tripCount}
@@ -149,7 +157,9 @@ export function KPIMetrics() {
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">Active Trips</dt>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  {t('reports.metrics.activeTrips')}
+                </dt>
                 <dd className="flex items-baseline">
                   <div className="text-2xl font-semibold text-gray-900">
                     {metrics.loading ? '...' : metrics.activeTrips}

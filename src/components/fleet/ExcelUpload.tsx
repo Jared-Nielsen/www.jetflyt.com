@@ -5,6 +5,7 @@ import { useAircraftTypes } from '../../hooks/useAircraftTypes';
 import { useAircraftEngineTypes } from '../../hooks/useAircraftEngineTypes';
 import { useFuelTypes } from '../../hooks/useFuelTypes';
 import type { Aircraft } from '../../types/aircraft';
+import { useTranslation } from 'react-i18next';
 
 interface ExcelUploadProps {
   onUpload: (aircraft: Omit<Aircraft, 'id' | 'user_id' | 'created_at' | 'updated_at'>[]) => Promise<void>;
@@ -15,6 +16,7 @@ export function ExcelUpload({ onUpload }: ExcelUploadProps) {
   const { types: aircraftTypes } = useAircraftTypes();
   const { types: engineTypes } = useAircraftEngineTypes();
   const { types: fuelTypes } = useFuelTypes();
+  const { t } = useTranslation();
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -48,13 +50,13 @@ export function ExcelUpload({ onUpload }: ExcelUploadProps) {
           e.target.value = ''; // Reset file input
         } catch (err) {
           console.error('Error processing Excel file:', err);
-          setError('Failed to process Excel file. Please check the format and try again.');
+          setError(t('fleet.errors.uploadFailed'));
         }
       };
       reader.readAsArrayBuffer(file);
     } catch (err) {
       console.error('Error handling file upload:', err);
-      setError('Failed to read file. Please try again.');
+      setError(t('fleet.errors.uploadFailed'));
     }
   };
 
@@ -115,12 +117,12 @@ export function ExcelUpload({ onUpload }: ExcelUploadProps) {
         className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
       >
         <Download className="w-4 h-4 mr-2" />
-        Download Template
+        {t('fleet.downloadTemplate')}
       </button>
 
       <label className="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 cursor-pointer">
         <Upload className="w-4 h-4 mr-2" />
-        Upload Excel
+        {t('fleet.uploadExcel')}
         <input
           type="file"
           accept=".xlsx,.xls"

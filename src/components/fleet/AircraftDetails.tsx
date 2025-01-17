@@ -5,6 +5,7 @@ import { AircraftForm } from './AircraftForm';
 import type { Aircraft } from '../../types/aircraft';
 import { Pencil, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface AircraftDetailsProps {
   aircraft: Aircraft;
@@ -14,14 +15,12 @@ interface AircraftDetailsProps {
 
 export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: AircraftDetailsProps) {
   const [showEditModal, setShowEditModal] = useState(false);
-
-  // Generate the filename that would be used for the STL file
-  const getStlFilename = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '.stl';
+  const { t } = useTranslation();
 
   // Format coordinates with null checks
   const formatCoordinates = () => {
     if (aircraft.latitude === null || aircraft.longitude === null) {
-      return 'Location not set';
+      return t('fleet.details.locationNotSet');
     }
     return `${aircraft.latitude.toFixed(4)}°, ${aircraft.longitude.toFixed(4)}°`;
   };
@@ -31,9 +30,9 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
       <div className="px-4 py-5 sm:p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Aircraft Details</h3>
+            <h3 className="text-lg font-medium text-gray-900">{t('fleet.details.title')}</h3>
             <div className="mt-2 text-sm text-gray-500">
-              Registration: {aircraft.tail_number}
+              {t('fleet.details.registration')}: {aircraft.tail_number}
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -42,14 +41,14 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
               className="flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 border border-blue-600 rounded"
             >
               <Pencil className="h-4 w-4 mr-1" />
-              Edit
+              {t('fleet.details.edit')}
             </button>
             <Link
               to="/fbos"
               className="flex items-center px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-500 border border-blue-600 rounded"
             >
               <MapPin className="h-4 w-4 mr-1" />
-              View on Map
+              {t('fleet.details.viewOnMap')}
             </Link>
           </div>
         </div>
@@ -57,7 +56,7 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
         <div className="mt-6 border-t border-gray-200 pt-6">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-gray-500">Aircraft Type</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.aircraftType')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{aircraft.type?.name}</div>
                 <div className="text-sm text-gray-500">{aircraft.type?.category}</div>
@@ -65,48 +64,50 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Manufacturer</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.manufacturer')}</dt>
               <dd className="mt-1">
                 <div className="text-sm text-gray-900">{aircraft.manufacturer}</div>
-                <div className="text-sm text-gray-500">{aircraft.model || 'N/A'}</div>
+                <div className="text-sm text-gray-500">{aircraft.model || t('common.notAvailable')}</div>
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Year</dt>
-              <dd className="mt-1 text-sm text-gray-900">{aircraft.year || 'N/A'}</dd>
-            </div>
-
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Engine Type</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.year')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.engine_type?.name || 'N/A'}
+                {aircraft.year || t('common.notAvailable')}
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Fuel Type</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.engineType')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.fuel_type?.name || 'N/A'}
+                {aircraft.engine_type?.name || t('common.notAvailable')}
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Fuel Capacity</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.fuelType')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.fuel_capacity ? `${aircraft.fuel_capacity.toLocaleString()} gallons` : 'N/A'}
+                {aircraft.fuel_type?.name || t('common.notAvailable')}
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Max Range</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.fuelCapacity')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {aircraft.max_range ? `${aircraft.max_range.toLocaleString()} nm` : 'N/A'}
+                {aircraft.fuel_capacity ? `${aircraft.fuel_capacity.toLocaleString()} gal` : t('common.notAvailable')}
               </dd>
             </div>
 
             <div>
-              <dt className="text-sm font-medium text-gray-500">Current Location</dt>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.maxRange')}</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {aircraft.max_range ? `${aircraft.max_range.toLocaleString()} nm` : t('common.notAvailable')}
+              </dd>
+            </div>
+
+            <div>
+              <dt className="text-sm font-medium text-gray-500">{t('fleet.details.currentLocation')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {formatCoordinates()}
               </dd>
@@ -116,7 +117,7 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
 
         {/* 3D Model Viewers */}
         <div className="mt-6 border-t border-gray-200 pt-6">
-          <h4 className="text-sm font-medium text-gray-500 mb-4">3D Model Preview</h4>
+          <h4 className="text-sm font-medium text-gray-500 mb-4">{t('fleet.details.modelPreview')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Aircraft Type Model */}
             <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4">
@@ -135,14 +136,14 @@ export function AircraftDetails({ aircraft, onClose, onAircraftUpdated }: Aircra
             onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Close
+            {t('common.close')}
           </button>
         </div>
 
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title="Edit Aircraft"
+          title={t('fleet.form.edit')}
         >
           <AircraftForm
             initialData={aircraft}

@@ -1,11 +1,14 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Plane, FileText, LogOut, BarChart3, Briefcase } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../LanguageSelector';
 
 export function DesktopNav() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleTenderClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -37,7 +40,7 @@ export function DesktopNav() {
               className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
             >
               <FileText className="h-4 w-4" />
-              <span>Tenders</span>
+              <span>{t('nav.tenders')}</span>
             </a>
             
             <a
@@ -46,17 +49,17 @@ export function DesktopNav() {
               className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
             >
               <Briefcase className="h-4 w-4" />
-              <span>Handling</span>
+              <span>{t('nav.handling')}</span>
             </a>
             
             <Link to="/fleet-registration" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">
               <Plane className="h-4 w-4" />
-              <span>Fleet</span>
+              <span>{t('nav.fleet')}</span>
             </Link>
 
             <Link to="/reports" className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800">
               <BarChart3 className="h-4 w-4" />
-              <span>Reports</span>
+              <span>{t('nav.reports')}</span>
             </Link>
 
             <button
@@ -64,7 +67,7 @@ export function DesktopNav() {
               className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
             >
               <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
+              <span>{t('nav.signOut')}</span>
             </button>
           </>
         )}
@@ -74,9 +77,11 @@ export function DesktopNav() {
             to="/auth/login"
             className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-800"
           >
-            <span>Sign In</span>
+            <span>{t('nav.signIn')}</span>
           </Link>
         )}
+
+        <LanguageSelector />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FormField } from '../shared/FormField';
 import type { Trip } from '../../types/trip';
+import { useTranslation } from 'react-i18next';
 
 interface TripFormProps {
   initialData?: Trip;
@@ -9,6 +10,7 @@ interface TripFormProps {
 }
 
 export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     description: initialData?.description || '',
@@ -36,7 +38,7 @@ export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
-        label="Trip Name"
+        label={t('trip.form.fields.name')}
         name="name"
         value={formData.name}
         onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -44,7 +46,7 @@ export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
       />
 
       <FormField
-        label="Description"
+        label={t('trip.form.fields.description')}
         name="description"
         type="textarea"
         value={formData.description}
@@ -53,7 +55,7 @@ export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
-          label="Start Date"
+          label={t('trip.form.fields.startDate')}
           name="start_date"
           type="datetime-local"
           value={formData.start_date}
@@ -62,7 +64,7 @@ export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
         />
 
         <FormField
-          label="End Date"
+          label={t('trip.form.fields.endDate')}
           name="end_date"
           type="datetime-local"
           value={formData.end_date}
@@ -76,13 +78,13 @@ export function TripForm({ initialData, onSubmit, onCancel }: TripFormProps) {
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          {t('trip.form.buttons.cancel')}
         </button>
         <button
           type="submit"
           className="px-4 py-2 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
         >
-          {initialData ? 'Update' : 'Create'} Trip
+          {initialData ? t('trip.form.buttons.update') : t('trip.form.buttons.create')}
         </button>
       </div>
     </form>

@@ -4,12 +4,14 @@ import { useTrip } from '../../hooks/useTrip';
 import { useAuth } from '../../contexts/AuthContext';
 import { RouteList } from './RouteList';
 import { AddTripModal } from '../dispatch/AddTripModal';
+import { useTranslation } from 'react-i18next';
 
 export function TripFooter() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const { activeTrip } = useTrip();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg z-[1000]">
@@ -24,7 +26,7 @@ export function TripFooter() {
             <ChevronUp className="h-5 w-5" />
           )}
           <span className="font-medium">
-            {activeTrip ? activeTrip.name : 'No Active Trip'}
+            {activeTrip ? activeTrip.name : t('trip.noActiveTrip')}
           </span>
         </button>
         <button
@@ -35,10 +37,10 @@ export function TripFooter() {
               ? 'bg-blue-600 text-white hover:bg-blue-700' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
-          title={user ? 'Create new trip' : 'Sign in to create trips'}
+          title={user ? t('trip.newTrip') : t('trip.signInRequired')}
         >
           <Plus className="h-4 w-4" />
-          <span>New Trip</span>
+          <span>{t('trip.newTrip')}</span>
         </button>
       </div>
 

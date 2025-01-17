@@ -1,8 +1,10 @@
-import { Pencil } from 'lucide-react';
 import { useState } from 'react';
+import { Modal } from '../shared/Modal';
 import { TripStatus } from './TripStatus';
-import { EditTripModal } from './EditTripModal';
+import { TripForm } from './TripForm';
+import { useTrip } from '../../hooks/useTrip';
 import type { Trip } from '../../types/trip';
+import { useTranslation } from 'react-i18next';
 
 interface TripCardProps {
   trip: Trip;
@@ -12,6 +14,7 @@ interface TripCardProps {
 
 export function TripCard({ trip, onEdit, onTripUpdated }: TripCardProps) {
   const [showEditModal, setShowEditModal] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -36,29 +39,36 @@ export function TripCard({ trip, onEdit, onTripUpdated }: TripCardProps) {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowEditModal(true)}
-              className="text-sm text-gray-600 hover:text-gray-900 flex items-center space-x-1"
+              className="text-sm text-gray-600 hover:text-gray-900"
             >
-              <Pencil className="h-4 w-4" />
-              <span>Edit</span>
+              {t('trip.form.buttons.edit')}
             </button>
             {trip.status !== 'active' && (
               <button
                 onClick={onEdit}
                 className="text-sm text-blue-600 hover:text-blue-500"
               >
-                Set Active
+                {t('trip.status.setActive')}
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <EditTripModal
+      <Modal
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
-        trip={trip}
-        onTripUpdated={onTripUpdated}
-      />
+        title={t('trip.form.title.edit')}
+      >
+        <TripForm
+          initialData={trip}
+          onSubmit={async (data) => {
+            await onTripUpdated();
+            setShowEditModal(false);
+          }}
+          onCancel={() => setShowEditModal(false)}
+        />
+      </Modal>
     </>
   );
 }

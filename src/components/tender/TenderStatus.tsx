@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Tender } from '../../types/tender';
 
 interface TenderStatusProps {
@@ -6,6 +7,8 @@ interface TenderStatusProps {
 }
 
 export function TenderStatus({ status }: TenderStatusProps) {
+  const { t } = useTranslation();
+
   const statusStyles = {
     pending: 'bg-yellow-100 text-yellow-800',
     active: 'bg-blue-100 text-blue-800',
@@ -15,7 +18,7 @@ export function TenderStatus({ status }: TenderStatusProps) {
 
   return (
     <span className={`inline-block px-2 py-1 text-sm rounded-full ${statusStyles[status]}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+      {t(`tenders.status.${status}`)}
     </span>
   );
 }

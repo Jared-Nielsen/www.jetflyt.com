@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, Plane, FileText, LogOut, BarChart3, Briefcase } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../LanguageSelector';
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -34,17 +37,20 @@ export function MobileNav() {
         <span className="font-bold text-xl">JetFlyt</span>
       </Link>
 
-      <button
-        onClick={toggleMenu}
-        className="p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-      >
-        <span className="sr-only">Open main menu</span>
-        {isOpen ? (
-          <X className="h-6 w-6" aria-hidden="true" />
-        ) : (
-          <Menu className="h-6 w-6" aria-hidden="true" />
-        )}
-      </button>
+      <div className="flex items-center space-x-2">
+        <LanguageSelector />
+        <button
+          onClick={toggleMenu}
+          className="p-2 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+        >
+          <span className="sr-only">Open main menu</span>
+          {isOpen ? (
+            <X className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <Menu className="h-6 w-6" aria-hidden="true" />
+          )}
+        </button>
+      </div>
 
       {isOpen && (
         <div className="absolute top-16 inset-x-0 bg-blue-900 shadow-lg z-[9999]">
@@ -57,7 +63,7 @@ export function MobileNav() {
                   onClick={handleTenderClick}
                 >
                   <FileText className="h-5 w-5" />
-                  <span>Tenders</span>
+                  <span>{t('nav.tenders')}</span>
                 </a>
 
                 <a
@@ -66,7 +72,7 @@ export function MobileNav() {
                   onClick={handleHandlingClick}
                 >
                   <Briefcase className="h-5 w-5" />
-                  <span>Handling</span>
+                  <span>{t('nav.handling')}</span>
                 </a>
 
                 <Link
@@ -75,7 +81,7 @@ export function MobileNav() {
                   onClick={toggleMenu}
                 >
                   <Plane className="h-5 w-5" />
-                  <span>Fleet</span>
+                  <span>{t('nav.fleet')}</span>
                 </Link>
 
                 <Link
@@ -84,7 +90,7 @@ export function MobileNav() {
                   onClick={toggleMenu}
                 >
                   <BarChart3 className="h-5 w-5" />
-                  <span>Reports</span>
+                  <span>{t('nav.reports')}</span>
                 </Link>
 
                 <button
@@ -95,7 +101,7 @@ export function MobileNav() {
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
                 >
                   <LogOut className="h-5 w-5" />
-                  <span>Sign Out</span>
+                  <span>{t('nav.signOut')}</span>
                 </button>
               </>
             )}
@@ -106,7 +112,7 @@ export function MobileNav() {
                 className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium hover:bg-blue-800 w-full"
                 onClick={toggleMenu}
               >
-                <span>Sign In</span>
+                <span>{t('nav.signIn')}</span>
               </Link>
             )}
           </div>

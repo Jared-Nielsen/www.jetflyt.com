@@ -6,6 +6,7 @@ import { FormSelect } from '../shared/FormSelect';
 import { supabase } from '../../lib/supabase';
 import type { FBO } from '../../types/fbo';
 import type { Tender } from '../../types/tender';
+import { useTranslation } from 'react-i18next';
 
 interface TenderFormProps {
   initialData?: Tender;
@@ -29,6 +30,8 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
   const [loading, setLoading] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const { t } = useTranslation();
+
   const [formData, setFormData] = useState({
     aircraft_id: initialData?.aircraft_id || '',
     icao_id: initialData?.icao_id || '',
@@ -99,9 +102,15 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
       const endTime = new Date(formData.end_date).getTime();
       
       if (endTime <= startTime) {
-        setDateError('End date must be after start date');
+        setDateError(t('tenders.form.errors.invalidDates'));
         return;
       }
+    }
+
+    // Validate at least one FBO is selected
+    if (formData.selected_fbos.length === 0) {
+      alert(t('tenders.form.errors.noFboSelected'));
+      return;
     }
 
     try {
@@ -117,19 +126,19 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
   };
 
   if (aircraftLoading || airportsLoading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <FormSelect
-        label="Aircraft"
+        label={t('tenders.form.fields.aircraft')}
         value={formData.aircraft_id}
         onChange={e => setFormData(prev => ({ ...prev, aircraft_id: e.target.value }))}
         required
         disabled={Boolean(initialData)}
       >
-        <option value="">Select aircraft</option>
+        <option value="">{t('tenders.form.fields.selectAircraft')}</option>
         {aircraft?.map(a => (
           <option key={a.id} value={a.id}>
             {a.tail_number} - {a.type?.name || 'Unknown Type'}
@@ -138,13 +147,13 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
       </FormSelect>
 
       <FormSelect
-        label="Airport"
+        label={t('tenders.form.fields.airport')}
         value={formData.icao_id}
         onChange={e => setFormData(prev => ({ ...prev, icao_id: e.target.value }))}
         required
         disabled={Boolean(initialData)}
       >
-        <option value="">Select airport</option>
+        <option value="">{t('tenders.form.fields.selectAirport')}</option>
         {airports?.map(airport => (
           <option key={airport.id} value={airport.id}>
             {airport.code} - {airport.name}
@@ -154,7 +163,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
-          label="Gallons Required"
+          label={t('tenders.form.fields.gallons')}
           type="number"
           min="1"
           step="1"
@@ -164,7 +173,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
         />
 
         <FormField
-          label="Best Current Price"
+          label={t('tenders.form.fields.targetPrice')}
           type="number"
           min="0.01"
           step="0.01"
@@ -185,13 +194,13 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Annual
+            {t('tenders.form.fields.annual')}
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
-            label="Start Date"
+            label={t('tenders.form.fields.startDate')}
             type="datetime-local"
             value={formData.start_date}
             onChange={e => handleStartDateChange(e.target.value)}
@@ -199,7 +208,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
           />
 
           <FormField
-            label="End Date (Optional)"
+            label={t('tenders.form.fields.endDate')}
             type="datetime-local"
             value={formData.end_date}
             onChange={e => {
@@ -218,7 +227,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
       )}
 
       <FormField
-        label="Description"
+        label={t('tenders.form.fields.description')}
         type="textarea"
         value={formData.description}
         onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -227,7 +236,7 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
       {fbos.length > 0 && !initialData && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select FBOs to Send Tender
+            {t('tenders.form.fields.selectFbos')}
           </label>
           <div className="space-y-2 border rounded-md p-3">
             {fbos.map(fbo => (
@@ -258,14 +267,14 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          Cancel
+          {t('tenders.form.buttons.cancel')}
         </button>
         <button
           type="submit"
           disabled={loading || (!initialData && formData.selected_fbos.length === 0)}
           className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : (initialData ? 'Update Tender' : 'Create Tender')}
+          {loading ? t('tenders.form.buttons.creating') : (initialData ? t('tenders.form.buttons.update') : t('tenders.form.buttons.create'))}
         </button>
       </div>
     </form>

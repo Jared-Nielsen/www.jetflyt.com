@@ -1,8 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 interface TripStatusProps {
   status: 'planned' | 'active' | 'completed' | 'cancelled';
 }
 
 export function TripStatus({ status }: TripStatusProps) {
+  const { t } = useTranslation();
+  
   const statusStyles = {
     planned: 'bg-blue-100 text-blue-800',
     active: 'bg-green-100 text-green-800',
@@ -11,8 +15,8 @@ export function TripStatus({ status }: TripStatusProps) {
   };
 
   return (
-    <span className={`text-xs px-2 py-1 rounded ${statusStyles[status]}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+    <span className={`inline-block px-2 py-1 text-sm rounded-full ${statusStyles[status]}`}>
+      {t(`trip.status.${status}`)}
     </span>
   );
 }
