@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useAircraft } from '../../hooks/useAircraft';
-import { useICAOData } from '../../hooks/useICAOData';
+import { useState } from 'react';
 import { FormField } from '../shared/FormField';
 import { FormSelect } from '../shared/FormSelect';
+import { SearchableSelect } from '../shared/SearchableSelect';
+import { useAircraft } from '../../hooks/useAircraft';
+import { useICAOData } from '../../hooks/useICAOData';
 import { supabase } from '../../lib/supabase';
-import type { FBO } from '../../types/fbo';
 import type { Tender } from '../../types/tender';
 import { useTranslation } from 'react-i18next';
 
@@ -26,77 +26,48 @@ interface TenderFormProps {
 export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps) {
   const { aircraft, loading: aircraftLoading } = useAircraft();
   const { data: airports, loading: airportsLoading } = useICAOData();
-  const [fbos, setFBOs] = useState<FBO[]>([]);
+  const [fbos, setFBOs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [dateError, setDateError] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
   const { t } = useTranslation();
 
+  // Initialize form data with current date/time for requested_date
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // Adjust for timezone
+  const defaultDateTime = now.toISOString().slice(0, 16);
+
   const [formData, setFormData] = useState({
     aircraft_id: initialData?.aircraft_id || '',
     icao_id: initialData?.icao_id || '',
-    gallons: initialData?.gallons.toString() || '',
-    target_price: initialData?.target_price.toString() || '',
+    selected_fbos: initialData?.selected_fbos || [],
+    gallons: initialData?.gallons?.toString() || '',
+    target_price: initialData?.target_price?.toString() || '',
     description: initialData?.description || '',
-    selected_fbos: [] as string[],
-    start_date: initialData?.start_date ? new Date(initialData.start_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16),
+    start_date: initialData?.start_date ? new Date(initialData.start_date).toISOString().slice(0, 16) : defaultDateTime,
     end_date: initialData?.end_date ? new Date(initialData.end_date).toISOString().slice(0, 16) : ''
   });
 
-  // Fetch FBOs when ICAO is selected
-  useEffect(() => {
-    if (!formData.icao_id) {
-      setFBOs([]);
-      return;
+  // Load FBOs for the selected airport
+  const loadFBOs = async (icaoId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('fbos')
+        .select('*')
+        .eq('icao_id', icaoId);
+
+      if (error) throw error;
+      setFBOs(data || []);
+    } catch (err) {
+      console.error('Error fetching FBOs:', err);
     }
-
-    const fetchFBOs = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('fbos')
-          .select('*')
-          .eq('icao_id', formData.icao_id);
-
-        if (error) throw error;
-        setFBOs(data || []);
-      } catch (err) {
-        console.error('Error fetching FBOs:', err);
-      }
-    };
-
-    fetchFBOs();
-  }, [formData.icao_id]);
-
-  const handleStartDateChange = (date: string) => {
-    setFormData(prev => {
-      const newData = { ...prev, start_date: date };
-      if (isAnnual) {
-        const startDate = new Date(date);
-        const endDate = new Date(startDate);
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        newData.end_date = endDate.toISOString().slice(0, 16);
-      }
-      return newData;
-    });
-    setDateError(null);
-  };
-
-  const handleAnnualClick = () => {
-    setIsAnnual(true);
-    const startDate = new Date(formData.start_date);
-    const endDate = new Date(startDate);
-    endDate.setFullYear(endDate.getFullYear() + 1);
-    setFormData(prev => ({
-      ...prev,
-      end_date: endDate.toISOString().slice(0, 16)
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
 
-    // Validate dates if end date is provided
+    // Validate dates
     if (formData.end_date) {
       const startTime = new Date(formData.start_date).getTime();
       const endTime = new Date(formData.end_date).getTime();
@@ -115,11 +86,16 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
 
     try {
       setLoading(true);
+      setDateError(null);
+
       await onSubmit({
         ...formData,
-        gallons: Number(formData.gallons),
-        target_price: Number(formData.target_price)
+        gallons: parseInt(formData.gallons, 10),
+        target_price: parseFloat(formData.target_price)
       });
+    } catch (err) {
+      console.error('Form submission error:', err);
+      alert(t('tenders.form.errors.submissionFailed'));
     } finally {
       setLoading(false);
     }
@@ -128,6 +104,12 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
   if (aircraftLoading || airportsLoading) {
     return <div>{t('common.loading')}</div>;
   }
+
+  const airportOptions = airports?.map(airport => ({
+    id: airport.id,
+    label: `${airport.code} - ${airport.name}`,
+    sublabel: airport.state ? `${airport.state}, ${airport.country}` : airport.country
+  })) || [];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -146,20 +128,20 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
         ))}
       </FormSelect>
 
-      <FormSelect
+      <SearchableSelect
         label={t('tenders.form.fields.airport')}
+        options={airportOptions}
         value={formData.icao_id}
-        onChange={e => setFormData(prev => ({ ...prev, icao_id: e.target.value }))}
+        onChange={(value) => {
+          setFormData(prev => ({ ...prev, icao_id: value, selected_fbos: [] }));
+          if (value) {
+            loadFBOs(value);
+          }
+        }}
+        placeholder={t('tenders.form.fields.selectAirport')}
         required
         disabled={Boolean(initialData)}
-      >
-        <option value="">{t('tenders.form.fields.selectAirport')}</option>
-        {airports?.map(airport => (
-          <option key={airport.id} value={airport.id}>
-            {airport.code} - {airport.name}
-          </option>
-        ))}
-      </FormSelect>
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <FormField
@@ -187,7 +169,16 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
         <div className="flex justify-end">
           <button
             type="button"
-            onClick={handleAnnualClick}
+            onClick={() => {
+              setIsAnnual(true);
+              const startDate = new Date(formData.start_date);
+              const endDate = new Date(startDate);
+              endDate.setFullYear(endDate.getFullYear() + 1);
+              setFormData(prev => ({
+                ...prev,
+                end_date: endDate.toISOString().slice(0, 16)
+              }));
+            }}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               isAnnual 
                 ? 'bg-green-600 text-white hover:bg-green-700' 
@@ -203,7 +194,19 @@ export function TenderForm({ initialData, onSubmit, onCancel }: TenderFormProps)
             label={t('tenders.form.fields.startDate')}
             type="datetime-local"
             value={formData.start_date}
-            onChange={e => handleStartDateChange(e.target.value)}
+            onChange={e => {
+              const startDate = new Date(e.target.value);
+              setFormData(prev => {
+                const newData = { ...prev, start_date: e.target.value };
+                if (isAnnual) {
+                  const endDate = new Date(startDate);
+                  endDate.setFullYear(endDate.getFullYear() + 1);
+                  newData.end_date = endDate.toISOString().slice(0, 16);
+                }
+                return newData;
+              });
+              setDateError(null);
+            }}
             required
           />
 

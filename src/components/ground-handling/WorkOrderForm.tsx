@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FormField } from '../shared/FormField';
 import { FormSelect } from '../shared/FormSelect';
+import { SearchableSelect } from '../shared/SearchableSelect';
 import { Plus, Minus } from 'lucide-react';
 import { useServices } from '../../hooks/useServices';
 import { useAircraft } from '../../hooks/useAircraft';
@@ -140,6 +141,12 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
     return <div>{t('common.loading')}</div>;
   }
 
+  const airportOptions = airports?.map(airport => ({
+    id: airport.id,
+    label: `${airport.code} - ${airport.name}`,
+    sublabel: airport.state ? `${airport.state}, ${airport.country}` : airport.country
+  })) || [];
+
   const CountField = ({ 
     label, 
     field, 
@@ -195,26 +202,21 @@ export function WorkOrderForm({ initialData, onSubmit, onCancel }: WorkOrderForm
         ))}
       </FormSelect>
 
-      <FormSelect
+      <SearchableSelect
         label={t('handling.form.fields.airport')}
+        options={airportOptions}
         value={selectedAirport?.id || ''}
-        onChange={e => {
-          const airport = airports?.find(a => a.id === e.target.value);
+        onChange={(value) => {
+          const airport = airports?.find(a => a.id === value);
           setSelectedAirport(airport || null);
           if (airport) {
             loadFBOs(airport.id);
           }
           setFormData(prev => ({ ...prev, selected_fbos: [] }));
         }}
+        placeholder={t('handling.form.fields.selectAirport')}
         required
-      >
-        <option value="">{t('handling.form.fields.selectAirport')}</option>
-        {airports?.map(airport => (
-          <option key={airport.id} value={airport.id}>
-            {airport.code} - {airport.name}
-          </option>
-        ))}
-      </FormSelect>
+      />
 
       <FormSelect
         label={t('handling.form.fields.service')}

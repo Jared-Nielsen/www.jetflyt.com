@@ -3,7 +3,7 @@ export const ja = {
     // Navigation
     'nav.tenders': '入札',
     'nav.handling': 'ハンドリング',
-    'nav.fleet': '機体',
+    'nav.fleet': '機体管理',
     'nav.reports': 'レポート',
     'nav.signIn': 'ログイン',
     'nav.signOut': 'ログアウト',
@@ -54,7 +54,7 @@ export const ja = {
     'tenders.offers.columns.totalCost': '総費用',
     'tenders.offers.columns.taxesAndFees': '税金・手数料',
     'tenders.offers.columns.finalCost': '最終費用',
-    'tenders.offers.columns.actions': 'アクション',
+    'tenders.offers.columns.actions': '操作',
 
     'tenders.offers.buttons.accept': '承認',
     'tenders.offers.buttons.sendContract': '契約書を送信',
