@@ -70,6 +70,9 @@ export function useTender() {
       gallons?: number;
       target_price?: number;
       description?: string;
+      status?: string;
+      start_date?: string;
+      end_date?: string;
     }
   ) => {
     try {
@@ -173,15 +176,8 @@ export function useTender() {
       setLoading(true);
       setError(null);
 
-      // First update the FBO tender
-      const { error: offerError } = await supabase
-        .from('fbo_tenders')
-        .update({ status: 'accepted' })
-        .eq('id', offerId);
-
-      if (offerError) throw offerError;
-
-      // Then update the tender
+      // Execute updates sequentially to ensure proper order
+      // 1. First update the tender status
       const { error: tenderError } = await supabase
         .from('tenders')
         .update({ status: 'accepted' })
@@ -189,7 +185,15 @@ export function useTender() {
 
       if (tenderError) throw tenderError;
 
-      // Finally update all other FBO tenders to rejected
+      // 2. Then update the accepted FBO tender
+      const { error: offerError } = await supabase
+        .from('fbo_tenders')
+        .update({ status: 'accepted' })
+        .eq('id', offerId);
+
+      if (offerError) throw offerError;
+
+      // 3. Finally update all other FBO tenders to rejected
       const { error: rejectError } = await supabase
         .from('fbo_tenders')
         .update({ status: 'rejected' })
@@ -225,7 +229,7 @@ export function useTender() {
         throw new Error('Only pending tenders can be cancelled');
       }
 
-      // First update all FBO tenders
+      // Update all FBO tenders first
       const { error: fboError } = await supabase
         .from('fbo_tenders')
         .update({ status: 'cancelled' })

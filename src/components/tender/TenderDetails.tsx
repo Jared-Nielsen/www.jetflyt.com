@@ -17,6 +17,8 @@ interface TenderDetailsProps {
 export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetailsProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showContractModal, setShowContractModal] = useState(false);
+  const [selectedFBO, setSelectedFBO] = useState<any>(null);
   const { cancelTender, updateTender, loading, error } = useTender();
   const { t } = useTranslation();
   
@@ -51,6 +53,17 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
       onClose();
     } catch (err) {
       console.error('Error updating tender:', err);
+    }
+  };
+
+  const handleContractSend = async () => {
+    try {
+      // Double-check the tender status is set to accepted
+      await updateTender(tender.id, { status: 'accepted' });
+      setShowContractModal(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error sending contract:', err);
     }
   };
 
@@ -216,6 +229,26 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             onSubmit={handleEdit}
             onCancel={() => setShowEditModal(false)}
           />
+        </Modal>
+
+        <Modal
+          isOpen={showContractModal}
+          onClose={() => setShowContractModal(false)}
+          title={t('tenders.offers.modal.contractTitle')}
+        >
+          <div className="p-6">
+            <p className="text-lg text-gray-700">
+              {t('tenders.offers.modal.contractSent', { fbo: selectedFBO?.name })}
+            </p>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleContractSend}
+                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+              >
+                {t('tenders.offers.buttons.close')}
+              </button>
+            </div>
+          </div>
         </Modal>
       </div>
     </div>
