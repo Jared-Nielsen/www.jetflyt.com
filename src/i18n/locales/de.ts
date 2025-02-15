@@ -35,7 +35,7 @@ export const de = {
     'tenders.status.active': 'Aktiv',
     'tenders.status.accepted': 'Angenommen',
     'tenders.status.rejected': 'Abgelehnt',
-    'tenders.status.cancelled': 'Storniert',
+    'tenders.status.canceled': 'Storniert',
 
     'tenders.details.title': 'Ausschreibungsdetails',
     'tenders.details.created': 'Erstellt am',
@@ -56,9 +56,12 @@ export const de = {
     'tenders.offers.columns.finalCost': 'Endkosten',
     'tenders.offers.columns.actions': 'Aktionen',
 
-    'tenders.offers.buttons.accept': 'Annehmen',
+    'tenders.offers.buttons.accept': 'Akzeptieren',
     'tenders.offers.buttons.sendContract': 'Vertrag senden',
     'tenders.offers.buttons.close': 'Schließen',
+    'tenders.offers.buttons.cancel': 'Abbrechen',
+
+    'tenders.offers.status.canceled': 'Storniert',
 
     'tenders.offers.modal.contractTitle': 'Vertragsbestätigung',
     'tenders.offers.modal.contractSent': 'Der Vertrag wurde an {{fbo}} gesendet',
@@ -134,7 +137,7 @@ export const de = {
     'handling.status.accepted': 'Angenommen',
     'handling.status.inProgress': 'In Bearbeitung',
     'handling.status.completed': 'Abgeschlossen',
-    'handling.status.cancelled': 'Storniert',
+    'handling.status.canceled': 'Storniert',
 
     'handling.form.title.new': 'Neue Dienstleistungsausschreibung erstellen',
     'handling.form.title.edit': 'Dienstleistungsausschreibung bearbeiten',
@@ -261,7 +264,7 @@ export const de = {
     'reports.status.pending': 'Ausstehend',
     'reports.status.active': 'Aktiv',
     'reports.status.completed': 'Abgeschlossen',
-    'reports.status.cancelled': 'Storniert',
+    'reports.status.canceled': 'Storniert',
     'reports.status.accepted': 'Angenommen',
     'reports.status.rejected': 'Abgelehnt',
     'reports.status.inProgress': 'In Bearbeitung',
@@ -296,6 +299,19 @@ export const de = {
     'trip.noRoutes': 'Keine Routen gefunden',
     'trip.startNewTrip': 'Erstellen Sie Ihren ersten Flug',
     'trip.createTrip': 'Flug erstellen',
+    'trip.routes.addRoute': 'Route Hinzufügen',
+
+    // Activity Logs
+    'logs.title': 'Aktivitätsprotokolle',
+    'logs.subtitle': 'Änderungen an Ausschreibungen und FBO-Ausschreibungen anzeigen und verfolgen',
+    'logs.tenderLogs': 'Ausschreibungsprotokolle',
+    'logs.fboTenderLogs': 'FBO-Ausschreibungsprotokolle',
+    'logs.timestamp': 'Zeitstempel',
+    'logs.user': 'Benutzer-ID',
+    'logs.tender': 'Ausschreibung',
+    'logs.fbo': 'FBO',
+    'logs.action': 'Aktion',
+    'logs.changes': 'Änderungen',
 
     // Routes
     'routes.title': 'Routen',
@@ -330,7 +346,7 @@ export const de = {
     'trip.status.planned': 'Geplant',
     'trip.status.active': 'Aktiv',
     'trip.status.completed': 'Abgeschlossen',
-    'trip.status.cancelled': 'Storniert',
+    'trip.status.canceled': 'Storniert',
     'trip.status.setActive': 'Als aktiv setzen',
     'trip.status.scheduled': 'Geplant',
     'trip.status.departed': 'Abgeflogen',
@@ -364,7 +380,7 @@ export const de = {
     'trip.leg.status.scheduled': 'Geplant',
     'trip.leg.status.departed': 'Abgeflogen',
     'trip.leg.status.arrived': 'Angekommen',
-    'trip.leg.status.cancelled': 'Storniert',
+    'trip.leg.status.canceled': 'Storniert',
 
     'trip.errors.invalidDates': 'Das Enddatum muss nach dem Startdatum liegen',
     'trip.errors.saveFailed': 'Fehler beim Speichern des Flugs. Bitte versuchen Sie es erneut.',

@@ -26,7 +26,7 @@ export interface FBOTender {
   counter_total_cost?: number;
   counter_taxes_and_fees?: number;
   description: string;
-  status?: 'pending' | 'accepted' | 'rejected';
+  status?: 'pending' | 'submitted' | 'accepted' | 'rejected' | 'canceled';
   created_at: string;
   updated_at: string;
 }

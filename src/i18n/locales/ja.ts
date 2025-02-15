@@ -35,7 +35,7 @@ export const ja = {
     'tenders.status.active': '有効',
     'tenders.status.accepted': '承認済',
     'tenders.status.rejected': '却下',
-    'tenders.status.cancelled': 'キャンセル',
+    'tenders.status.canceled': 'キャンセル',
 
     'tenders.details.title': '入札詳細',
     'tenders.details.created': '作成日',
@@ -59,6 +59,9 @@ export const ja = {
     'tenders.offers.buttons.accept': '承認',
     'tenders.offers.buttons.sendContract': '契約書を送信',
     'tenders.offers.buttons.close': '閉じる',
+    'tenders.offers.buttons.cancel': 'キャンセル',
+
+    'tenders.offers.status.canceled': 'キャンセル済み',
 
     'tenders.offers.modal.contractTitle': '契約確認',
     'tenders.offers.modal.contractSent': '契約書が{{fbo}}に送信されました',
@@ -134,7 +137,7 @@ export const ja = {
     'handling.status.accepted': '承認済',
     'handling.status.inProgress': '進行中',
     'handling.status.completed': '完了',
-    'handling.status.cancelled': 'キャンセル',
+    'handling.status.canceled': 'キャンセル',
 
     'handling.form.title.new': '新規サービス入札作成',
     'handling.form.title.edit': 'サービス入札編集',
@@ -261,7 +264,7 @@ export const ja = {
     'reports.status.pending': '保留中',
     'reports.status.active': 'アクティブ',
     'reports.status.completed': '完了',
-    'reports.status.cancelled': 'キャンセル',
+    'reports.status.canceled': 'キャンセル',
     'reports.status.accepted': '承認済',
     'reports.status.rejected': '却下',
     'reports.status.inProgress': '進行中',
@@ -271,6 +274,20 @@ export const ja = {
     // Common
     'common.loading': '読み込み中...',
     'common.close': '閉じる',
-    'common.notAvailable': 'N/A'
+    'common.notAvailable': 'N/A',
+
+    'trip.routes.addRoute': 'ルートを追加',
+
+    // Activity Logs
+    'logs.title': 'アクティビティログ',
+    'logs.subtitle': '入札とFBO入札の変更を表示・追跡',
+    'logs.tenderLogs': '入札ログ',
+    'logs.fboTenderLogs': 'FBO入札ログ',
+    'logs.timestamp': 'タイムスタンプ',
+    'logs.user': 'ユーザーID',
+    'logs.tender': '入札',
+    'logs.fbo': 'FBO',
+    'logs.action': 'アクション',
+    'logs.changes': '変更内容',
   }
 };

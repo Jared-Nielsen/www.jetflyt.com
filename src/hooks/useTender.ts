@@ -20,6 +20,18 @@ export function useTender() {
       setLoading(true);
       setError(null);
 
+      console.log('Creating tender with data:', { tenderData, selectedFBOs });
+
+      // Get current user's ID
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error getting user:', userError);
+        throw userError;
+      }
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
+
       // First, create the tender record
       const { data: tender, error: tenderError } = await supabase
         .from('tenders')
@@ -29,12 +41,18 @@ export function useTender() {
           gallons: tenderData.gallons,
           target_price: tenderData.target_price,
           description: tenderData.description,
-          status: 'pending'
+          status: 'pending',
+          auth_id: user.id
         }])
         .select()
         .single();
 
-      if (tenderError) throw tenderError;
+      if (tenderError) {
+        console.error('Error creating tender record:', tenderError);
+        throw tenderError;
+      }
+
+      console.log('Created tender:', tender);
 
       // Then create FBO tender records
       if (selectedFBOs.length > 0) {
@@ -47,17 +65,24 @@ export function useTender() {
           status: 'pending'
         }));
 
+        console.log('Creating FBO tenders:', fboTenders);
+
         const { error: fboError } = await supabase
           .from('fbo_tenders')
           .insert(fboTenders);
 
-        if (fboError) throw fboError;
+        if (fboError) {
+          console.error('Error creating FBO tenders:', fboError);
+          throw fboError;
+        }
+
+        console.log('Created FBO tenders successfully');
       }
 
       return tender;
     } catch (err) {
-      console.error('Error creating tender:', err);
-      setError('Failed to create tender');
+      console.error('Error in createTender:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create tender');
       throw err;
     } finally {
       setLoading(false);
@@ -176,35 +201,24 @@ export function useTender() {
       setLoading(true);
       setError(null);
 
-      // Execute updates sequentially to ensure proper order
-      // 1. First update the tender status
-      const { error: tenderError } = await supabase
-        .from('tenders')
-        .update({ status: 'accepted' })
-        .eq('id', tenderId);
+      console.log('Accepting offer:', { offerId, tenderId });
 
-      if (tenderError) throw tenderError;
+      // Use a transaction to ensure all updates happen atomically
+      const { data, error } = await supabase.rpc('accept_tender_offer', {
+        p_tender_id: tenderId,
+        p_offer_id: offerId
+      });
 
-      // 2. Then update the accepted FBO tender
-      const { error: offerError } = await supabase
-        .from('fbo_tenders')
-        .update({ status: 'accepted' })
-        .eq('id', offerId);
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
-      if (offerError) throw offerError;
-
-      // 3. Finally update all other FBO tenders to rejected
-      const { error: rejectError } = await supabase
-        .from('fbo_tenders')
-        .update({ status: 'rejected' })
-        .eq('tender_id', tenderId)
-        .neq('id', offerId);
-
-      if (rejectError) throw rejectError;
-
+      console.log('Offer accepted successfully:', data);
+      return data;
     } catch (err) {
       console.error('Error accepting offer:', err);
-      setError('Failed to accept offer');
+      setError(err instanceof Error ? err.message : 'Failed to accept offer');
       throw err;
     } finally {
       setLoading(false);
@@ -254,6 +268,26 @@ export function useTender() {
     }
   };
 
+  const cancelFBOTender = async (fboTenderId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { error } = await supabase.rpc('cancel_fbo_tender', {
+        p_fbo_tender_id: fboTenderId
+      });
+
+      if (error) throw error;
+
+    } catch (err) {
+      console.error('Error canceling FBO tender:', err);
+      setError(err instanceof Error ? err.message : 'Failed to cancel FBO tender');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -261,6 +295,7 @@ export function useTender() {
     updateTender,
     getTenders,
     acceptOffer,
-    cancelTender
+    cancelTender,
+    cancelFBOTender
   };
 }

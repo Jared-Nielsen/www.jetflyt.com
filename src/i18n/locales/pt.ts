@@ -59,6 +59,9 @@ export const pt = {
     'tenders.offers.buttons.accept': 'Aceitar',
     'tenders.offers.buttons.sendContract': 'Enviar Contrato',
     'tenders.offers.buttons.close': 'Fechar',
+    'tenders.offers.buttons.cancel': 'Cancelar',
+
+    'tenders.offers.status.canceled': 'Cancelado',
 
     'tenders.offers.modal.contractTitle': 'Confirmação do Contrato',
     'tenders.offers.modal.contractSent': 'O Contrato foi enviado para {{fbo}}',
@@ -179,7 +182,7 @@ export const pt = {
     'footer.legal.terms': 'Termos e Condições',
     'footer.contact.title': 'Contato',
     'footer.contact.contactUs': 'Fale Conosco',
-    'footer.copyright': '© {{year}} JetFlyt. Todos os direitos reservados.',
+    'footer.copyright': ' JetFlyt. Todos os direitos reservados.',
 
     // Fleet Management
     'fleet.title': 'Frota de Aeronaves',
@@ -409,6 +412,20 @@ export const pt = {
     // Common
     'common.loading': 'Carregando...',
     'common.close': 'Fechar',
-    'common.notAvailable': 'N/D'
+    'common.notAvailable': 'N/D',
+
+    'trip.routes.addRoute': 'Adicionar Rota',
+
+    // Activity Logs
+    'logs.title': 'Registros de Atividade',
+    'logs.subtitle': 'Visualizar e acompanhar alterações em licitações e licitações FBO',
+    'logs.tenderLogs': 'Registros de Licitações',
+    'logs.fboTenderLogs': 'Registros de Licitações FBO',
+    'logs.timestamp': 'Data e Hora',
+    'logs.user': 'ID do Usuário',
+    'logs.tender': 'Licitação',
+    'logs.fbo': 'FBO',
+    'logs.action': 'Ação',
+    'logs.changes': 'Alterações',
   }
 };

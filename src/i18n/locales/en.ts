@@ -35,7 +35,7 @@ export const en = {
     'tenders.status.active': 'Active',
     'tenders.status.accepted': 'Accepted',
     'tenders.status.rejected': 'Rejected',
-    'tenders.status.cancelled': 'Cancelled',
+    'tenders.status.canceled': 'Canceled',
 
     'tenders.details.title': 'Tender Details',
     'tenders.details.created': 'Created on',
@@ -59,11 +59,13 @@ export const en = {
     'tenders.offers.buttons.accept': 'Accept',
     'tenders.offers.buttons.sendContract': 'Send Contract',
     'tenders.offers.buttons.close': 'Close',
+    'tenders.offers.buttons.cancel': 'Cancel',
 
     'tenders.offers.modal.contractTitle': 'Contract Confirmation',
     'tenders.offers.modal.contractSent': 'Contract has been sent to {{fbo}}',
 
     'tenders.offers.errors.acceptFailed': 'Failed to accept offer. Please try again.',
+    'tenders.offers.errors.cancelFailed': 'Failed to cancel offer. Please try again.',
 
     'tenders.offers.noResponses': 'No tender offers found.',
     'tenders.offers.response': 'response',
@@ -134,7 +136,7 @@ export const en = {
     'handling.status.accepted': 'Accepted',
     'handling.status.inProgress': 'In Progress',
     'handling.status.completed': 'Completed',
-    'handling.status.cancelled': 'Cancelled',
+    'handling.status.canceled': 'Canceled',
 
     'handling.form.title.new': 'Create New Service Tender',
     'handling.form.title.edit': 'Edit Service Tender',
@@ -178,7 +180,7 @@ export const en = {
     'footer.legal.terms': 'Terms & Conditions',
     'footer.contact.title': 'Contact',
     'footer.contact.contactUs': 'Contact Us',
-    'footer.copyright': '© {{year}} JetFlyt. All rights reserved.',
+    'footer.copyright': ' JetFlyt. All rights reserved.',
 
     // Fleet Management
     'fleet.title': 'Aircraft Fleet',
@@ -261,12 +263,24 @@ export const en = {
     'reports.status.pending': 'Pending',
     'reports.status.active': 'Active',
     'reports.status.completed': 'Completed',
-    'reports.status.cancelled': 'Cancelled',
+    'reports.status.canceled': 'Canceled',
     'reports.status.accepted': 'Accepted',
     'reports.status.rejected': 'Rejected',
     'reports.status.inProgress': 'In Progress',
 
     'reports.errors.loadFailed': 'Failed to load data. Please try again.',
+
+    // Logs
+    'logs.title': 'Activity Logs',
+    'logs.subtitle': 'View and track changes to tenders and FBO tenders',
+    'logs.tenderLogs': 'Tender Logs',
+    'logs.fboTenderLogs': 'FBO Tender Logs',
+    'logs.timestamp': 'Timestamp',
+    'logs.user': 'User ID',
+    'logs.tender': 'Tender',
+    'logs.fbo': 'FBO',
+    'logs.action': 'Action',
+    'logs.changes': 'Changes',
 
     // Map Components
     'map.aircraft.title': 'Your Aircraft',
@@ -330,7 +344,7 @@ export const en = {
     'trip.status.planned': 'Planned',
     'trip.status.active': 'Active',
     'trip.status.completed': 'Completed',
-    'trip.status.cancelled': 'Cancelled',
+    'trip.status.canceled': 'Canceled',
     'trip.status.setActive': 'Set as Active',
     'trip.status.scheduled': 'Scheduled',
     'trip.status.departed': 'Departed',
@@ -364,7 +378,7 @@ export const en = {
     'trip.leg.status.scheduled': 'Scheduled',
     'trip.leg.status.departed': 'Departed',
     'trip.leg.status.arrived': 'Arrived',
-    'trip.leg.status.cancelled': 'Cancelled',
+    'trip.leg.status.canceled': 'Canceled',
 
     'trip.errors.invalidDates': 'End date must be after start date',
     'trip.errors.saveFailed': 'Failed to save trip. Please try again.',

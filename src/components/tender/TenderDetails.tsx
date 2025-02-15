@@ -19,18 +19,31 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
   const [showEditModal, setShowEditModal] = useState(false);
   const [showContractModal, setShowContractModal] = useState(false);
   const [selectedFBO, setSelectedFBO] = useState<any>(null);
-  const { cancelTender, updateTender, loading, error } = useTender();
+  const { cancelTender, updateTender, getTenders, loading, error } = useTender();
+  const [currentTender, setCurrentTender] = useState(tender);
   const { t } = useTranslation();
   
-  const totalValue = tender.gallons * tender.target_price;
+  const totalValue = currentTender.gallons * currentTender.target_price;
 
-  const isAnnual = tender.start_date && tender.end_date && 
-    new Date(tender.end_date).getTime() - new Date(tender.start_date).getTime() >= 364 * 24 * 60 * 60 * 1000 &&
-    new Date(tender.end_date).getTime() - new Date(tender.start_date).getTime() <= 366 * 24 * 60 * 60 * 1000;
+  const isAnnual = currentTender.start_date && currentTender.end_date && 
+    new Date(currentTender.end_date).getTime() - new Date(currentTender.start_date).getTime() >= 364 * 24 * 60 * 60 * 1000 &&
+    new Date(currentTender.end_date).getTime() - new Date(currentTender.start_date).getTime() <= 366 * 24 * 60 * 60 * 1000;
+
+  const refreshTenderData = async () => {
+    try {
+      const tenders = await getTenders();
+      const updatedTender = tenders?.find(t => t.id === currentTender.id);
+      if (updatedTender) {
+        setCurrentTender(updatedTender);
+      }
+    } catch (err) {
+      console.error('Error refreshing tender data:', err);
+    }
+  };
 
   const handleCancel = async () => {
     try {
-      await cancelTender(tender.id);
+      await cancelTender(currentTender.id);
       await onTenderUpdated();
       setShowCancelModal(false);
       window.location.reload();
@@ -41,16 +54,15 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
 
   const handleEdit = async (data: any) => {
     try {
-      await updateTender(tender.id, {
+      await updateTender(currentTender.id, {
         gallons: data.gallons,
         target_price: data.target_price,
         description: data.description,
         start_date: data.start_date,
         end_date: data.end_date
       });
-      await onTenderUpdated();
+      await refreshTenderData();
       setShowEditModal(false);
-      onClose();
     } catch (err) {
       console.error('Error updating tender:', err);
     }
@@ -58,10 +70,9 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
 
   const handleContractSend = async () => {
     try {
-      // Double-check the tender status is set to accepted
-      await updateTender(tender.id, { status: 'accepted' });
+      await updateTender(currentTender.id, { status: 'accepted' });
+      await refreshTenderData();
       setShowContractModal(false);
-      window.location.reload();
     } catch (err) {
       console.error('Error sending contract:', err);
     }
@@ -74,9 +85,9 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
           <div>
             <h3 className="text-lg font-medium text-gray-900">{t('tenders.details.title')}</h3>
             <div className="mt-2 text-sm text-gray-500">
-              {t('tenders.details.created')} {new Date(tender.created_at).toLocaleDateString()}
+              {t('tenders.details.created')} {new Date(currentTender.created_at).toLocaleDateString()}
             </div>
-            {(tender.start_date || tender.end_date) && (
+            {(currentTender.start_date || currentTender.end_date) && (
               <div className="mt-2 flex items-center text-sm text-gray-500">
                 {isAnnual ? (
                   <CalendarCheck className="h-4 w-4 mr-1 text-green-600" />
@@ -84,11 +95,11 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
                   <Calendar className="h-4 w-4 mr-1" />
                 )}
                 <span>
-                  {tender.start_date && new Date(tender.start_date).toLocaleDateString()}
-                  {tender.end_date && (
+                  {currentTender.start_date && new Date(currentTender.start_date).toLocaleDateString()}
+                  {currentTender.end_date && (
                     <>
                       <ArrowRight className="inline-block h-4 w-4 mx-1" />
-                      {new Date(tender.end_date).toLocaleDateString()}
+                      {new Date(currentTender.end_date).toLocaleDateString()}
                     </>
                   )}
                 </span>
@@ -96,8 +107,8 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <TenderStatus status={tender.status} />
-            {tender.status === 'pending' && (
+            <TenderStatus status={currentTender.status} />
+            {currentTender.status === 'pending' && (
               <>
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -122,9 +133,9 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             <div>
               <dt className="text-sm font-medium text-gray-500">{t('tenders.details.aircraft')}</dt>
               <dd className="mt-1">
-                <div className="text-sm text-gray-900">{tender.aircraft.tail_number}</div>
+                <div className="text-sm text-gray-900">{currentTender.aircraft.tail_number}</div>
                 <div className="text-sm text-gray-500">
-                  {tender.aircraft.manufacturer} {tender.aircraft.model}
+                  {currentTender.aircraft.manufacturer} {currentTender.aircraft.model}
                 </div>
               </dd>
             </div>
@@ -132,32 +143,32 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             <div>
               <dt className="text-sm font-medium text-gray-500">{t('tenders.details.location')}</dt>
               <dd className="mt-1">
-                <div className="text-sm text-gray-900">{tender.icao.code}</div>
-                <div className="text-sm text-gray-500">{tender.icao.name}</div>
+                <div className="text-sm text-gray-900">{currentTender.icao.code}</div>
+                <div className="text-sm text-gray-500">{currentTender.icao.name}</div>
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">{t('tenders.details.fuelRequest')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                {tender.gallons.toLocaleString()} gal
+                {currentTender.gallons.toLocaleString()} gal
               </dd>
             </div>
 
             <div>
               <dt className="text-sm font-medium text-gray-500">{t('tenders.details.bestPrice')}</dt>
               <dd className="mt-1 text-sm text-gray-900">
-                ${tender.target_price.toFixed(2)}/gal
+                ${currentTender.target_price.toFixed(2)}/gal
                 <div className="text-sm text-gray-500">
                   {t('tenders.details.totalValue')}: ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </div>
               </dd>
             </div>
 
-            {tender.description && (
+            {currentTender.description && (
               <div className="sm:col-span-2">
                 <dt className="text-sm font-medium text-gray-500">{t('tenders.details.description')}</dt>
-                <dd className="mt-1 text-sm text-gray-900">{tender.description}</dd>
+                <dd className="mt-1 text-sm text-gray-900">{currentTender.description}</dd>
               </div>
             )}
           </dl>
@@ -167,10 +178,10 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
           <h4 className="text-lg font-medium text-gray-900">{t('tenders.details.fboResponses')}</h4>
           <div className="mt-4">
             <FBOOfferList 
-              offers={tender.fbo_tenders}
-              tenderId={tender.id}
-              tenderStatus={tender.status}
-              onOfferAccepted={onTenderUpdated}
+              offers={currentTender.fbo_tenders}
+              tenderId={currentTender.id}
+              tenderStatus={currentTender.status}
+              onOfferAccepted={refreshTenderData}
             />
           </div>
         </div>
@@ -184,7 +195,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
             {t('tenders.form.buttons.close')}
           </button>
           <div className="text-sm text-gray-500">
-            {t('tenders.details.tenderId')}: {tender.id}
+            {t('tenders.details.tenderId')}: {currentTender.id}
           </div>
         </div>
 
@@ -225,7 +236,7 @@ export function TenderDetails({ tender, onClose, onTenderUpdated }: TenderDetail
           title={t('tenders.form.title.edit')}
         >
           <TenderForm
-            initialData={tender}
+            initialData={currentTender}
             onSubmit={handleEdit}
             onCancel={() => setShowEditModal(false)}
           />

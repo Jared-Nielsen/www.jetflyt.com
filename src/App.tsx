@@ -18,6 +18,7 @@ const FBOMapPage = lazy(() => import('./pages/FBOMapPage'));
 const AirportsPage = lazy(() => import('./pages/AirportsPage'));
 const DispatchPage = lazy(() => import('./pages/DispatchPage'));
 const ReportsPage = lazy(() => import('./pages/ReportsPage'));
+const LogsPage = lazy(() => import('./pages/LogsPage'));
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
 const TermsConditions = lazy(() => import('./pages/legal/TermsConditions'));
 const ContactPage = lazy(() => import('./pages/contact/ContactPage'));
@@ -46,7 +47,10 @@ export default function App() {
                   <Route path="/tender-offer" element={<TenderOfferPage />} />
                   <Route path="/ground-handling" element={<GroundHandlingPage />} />
                   <Route path="/fleet-registration" element={<FleetRegistrationPage />} />
-                  <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/reports">
+                    <Route index element={<ReportsPage />} />
+                    <Route path="logs" element={<LogsPage />} />
+                  </Route>
                 </Route>
               </Route>
 

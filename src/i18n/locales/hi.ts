@@ -35,7 +35,7 @@ export const hi = {
     'tenders.status.active': 'सक्रिय',
     'tenders.status.accepted': 'स्वीकृत',
     'tenders.status.rejected': 'अस्वीकृत',
-    'tenders.status.cancelled': 'रद्द',
+    'tenders.status.canceled': 'रद्द',
 
     'tenders.details.title': 'निविदा विवरण',
     'tenders.details.created': 'बनाया गया',
@@ -59,6 +59,9 @@ export const hi = {
     'tenders.offers.buttons.accept': 'स्वीकार करें',
     'tenders.offers.buttons.sendContract': 'अनुबंध भेजें',
     'tenders.offers.buttons.close': 'बंद करें',
+    'tenders.offers.buttons.cancel': 'रद्द करें',
+
+    'tenders.offers.status.canceled': 'रद्द कर दिया गया',
 
     'tenders.offers.modal.contractTitle': 'अनुबंध पुष्टि',
     'tenders.offers.modal.contractSent': 'अनुबंध {{fbo}} को भेज दिया गया है',
@@ -134,7 +137,7 @@ export const hi = {
     'handling.status.accepted': 'स्वीकृत',
     'handling.status.inProgress': 'प्रगति में',
     'handling.status.completed': 'पूर्ण',
-    'handling.status.cancelled': 'रद्द',
+    'handling.status.canceled': 'रद्द',
 
     'handling.form.title.new': 'नई सेवा निविदा बनाएं',
     'handling.form.title.edit': 'सेवा निविदा संपादित करें',
@@ -271,6 +274,20 @@ export const hi = {
     // Common
     'common.loading': 'लोड हो रहा है...',
     'common.close': 'बंद करें',
-    'common.notAvailable': 'उपलब्ध नहीं'
+    'common.notAvailable': 'उपलब्ध नहीं',
+
+    'trip.routes.addRoute': 'मार्ग जोड़ें',
+
+    // Activity Logs
+    'logs.title': 'गतिविधि लॉग',
+    'logs.subtitle': 'निविदाओं और FBO निविदाओं में परिवर्तनों को देखें और ट्रैक करें',
+    'logs.tenderLogs': 'निविदा लॉग',
+    'logs.fboTenderLogs': 'FBO निविदा लॉग',
+    'logs.timestamp': 'समय मुद्रांक',
+    'logs.user': 'उपयोगकर्ता ID',
+    'logs.tender': 'निविदा',
+    'logs.fbo': 'FBO',
+    'logs.action': 'कार्रवाई',
+    'logs.changes': 'परिवर्तन',
   }
 };

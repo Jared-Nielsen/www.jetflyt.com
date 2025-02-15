@@ -35,7 +35,7 @@ export const fr = {
     'tenders.status.active': 'Actif',
     'tenders.status.accepted': 'Accepté',
     'tenders.status.rejected': 'Rejeté',
-    'tenders.status.cancelled': 'Annulé',
+    'tenders.status.canceled': 'Annulé',
 
     'tenders.details.title': 'Détails de l\'Appel d\'offres',
     'tenders.details.created': 'Créé le',
@@ -59,6 +59,9 @@ export const fr = {
     'tenders.offers.buttons.accept': 'Accepter',
     'tenders.offers.buttons.sendContract': 'Envoyer le Contrat',
     'tenders.offers.buttons.close': 'Fermer',
+    'tenders.offers.buttons.cancel': 'Annuler',
+
+    'tenders.offers.status.canceled': 'Annulé',
 
     'tenders.offers.modal.contractTitle': 'Confirmation du Contrat',
     'tenders.offers.modal.contractSent': 'Le contrat a été envoyé à {{fbo}}',
@@ -134,7 +137,7 @@ export const fr = {
     'handling.status.accepted': 'Accepté',
     'handling.status.inProgress': 'En cours',
     'handling.status.completed': 'Terminé',
-    'handling.status.cancelled': 'Annulé',
+    'handling.status.canceled': 'Annulé',
 
     'handling.form.title.new': 'Créer un Nouvel Appel d\'offres de Service',
     'handling.form.title.edit': 'Modifier l\'Appel d\'offres de Service',
@@ -261,7 +264,7 @@ export const fr = {
     'reports.status.pending': 'En Attente',
     'reports.status.active': 'Actif',
     'reports.status.completed': 'Terminé',
-    'reports.status.cancelled': 'Annulé',
+    'reports.status.canceled': 'Annulé',
     'reports.status.accepted': 'Accepté',
     'reports.status.rejected': 'Rejeté',
     'reports.status.inProgress': 'En Cours',
@@ -271,6 +274,20 @@ export const fr = {
     // Common
     'common.loading': 'Chargement...',
     'common.close': 'Fermer',
-    'common.notAvailable': 'N/D'
+    'common.notAvailable': 'N/D',
+
+    'trip.routes.addRoute': 'Ajouter un Itinéraire',
+
+    // Activity Logs
+    'logs.title': 'Journaux d\'Activité',
+    'logs.subtitle': 'Visualiser et suivre les modifications des appels d\'offres et des appels d\'offres FBO',
+    'logs.tenderLogs': 'Journaux des Appels d\'Offres',
+    'logs.fboTenderLogs': 'Journaux des Appels d\'Offres FBO',
+    'logs.timestamp': 'Horodatage',
+    'logs.user': 'ID Utilisateur',
+    'logs.tender': 'Appel d\'Offres',
+    'logs.fbo': 'FBO',
+    'logs.action': 'Action',
+    'logs.changes': 'Modifications',
   }
 };

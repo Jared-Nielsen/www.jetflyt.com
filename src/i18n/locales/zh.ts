@@ -35,7 +35,7 @@ export const zh = {
     'tenders.status.active': '活动',
     'tenders.status.accepted': '已接受',
     'tenders.status.rejected': '已拒绝',
-    'tenders.status.cancelled': '已取消',
+    'tenders.status.canceled': '已取消',
 
     'tenders.details.title': '投标详情',
     'tenders.details.created': '创建于',
@@ -59,6 +59,9 @@ export const zh = {
     'tenders.offers.buttons.accept': '接受',
     'tenders.offers.buttons.sendContract': '发送合同',
     'tenders.offers.buttons.close': '关闭',
+    'tenders.offers.buttons.cancel': '取消',
+
+    'tenders.offers.status.canceled': '已取消',
 
     'tenders.offers.modal.contractTitle': '合同确认',
     'tenders.offers.modal.contractSent': '合同已发送至 {{fbo}}',
@@ -134,7 +137,7 @@ export const zh = {
     'handling.status.accepted': '已接受',
     'handling.status.inProgress': '进行中',
     'handling.status.completed': '已完成',
-    'handling.status.cancelled': '已取消',
+    'handling.status.canceled': '已取消',
 
     'handling.form.title.new': '创建新服务投标',
     'handling.form.title.edit': '编辑服务投标',
@@ -271,6 +274,20 @@ export const zh = {
     // Common
     'common.loading': '加载中...',
     'common.close': '关闭',
-    'common.notAvailable': '不可用'
+    'common.notAvailable': '不可用',
+
+    'trip.routes.addRoute': '添加路线',
+
+    // Activity Logs
+    'logs.title': '活动日志',
+    'logs.subtitle': '查看和跟踪投标和FBO投标的变更',
+    'logs.tenderLogs': '投标日志',
+    'logs.fboTenderLogs': 'FBO投标日志',
+    'logs.timestamp': '时间戳',
+    'logs.user': '用户ID',
+    'logs.tender': '投标',
+    'logs.fbo': 'FBO',
+    'logs.action': '操作',
+    'logs.changes': '变更',
   }
 };

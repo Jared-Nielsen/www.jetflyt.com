@@ -35,7 +35,7 @@ export const ar = {
     'tenders.status.active': 'نشط',
     'tenders.status.accepted': 'مقبول',
     'tenders.status.rejected': 'مرفوض',
-    'tenders.status.cancelled': 'ملغى',
+    'tenders.status.canceled': 'ملغى',
 
     'tenders.details.title': 'تفاصيل المناقصة',
     'tenders.details.created': 'تم الإنشاء في',
@@ -59,6 +59,9 @@ export const ar = {
     'tenders.offers.buttons.accept': 'قبول',
     'tenders.offers.buttons.sendContract': 'إرسال العقد',
     'tenders.offers.buttons.close': 'إغلاق',
+    'tenders.offers.buttons.cancel': 'إلغاء',
+
+    'tenders.offers.status.canceled': 'ملغى',
 
     'tenders.offers.modal.contractTitle': 'تأكيد العقد',
     'tenders.offers.modal.contractSent': 'تم إرسال العقد إلى {{fbo}}',
@@ -134,7 +137,7 @@ export const ar = {
     'handling.status.accepted': 'مقبول',
     'handling.status.inProgress': 'قيد التنفيذ',
     'handling.status.completed': 'مكتمل',
-    'handling.status.cancelled': 'ملغى',
+    'handling.status.canceled': 'ملغى',
 
     'handling.form.title.new': 'إنشاء مناقصة خدمة جديدة',
     'handling.form.title.edit': 'تعديل مناقصة الخدمة',
@@ -164,6 +167,21 @@ export const ar = {
     'handling.form.errors.noFboSelected': 'يرجى اختيار مشغل مطار واحد على الأقل',
     'handling.form.errors.noRequestedDate': 'التاريخ المطلوب مطلوب',
     'handling.form.errors.submissionFailed': 'فشل تقديم النموذج. يرجى المحاولة مرة أخرى.',
+
+    // Trip Management
+    'trip.routes.addRoute': 'إضافة مسار',
+
+    // Activity Logs
+    'logs.title': 'سجلات النشاط',
+    'logs.subtitle': 'عرض وتتبع التغييرات في المناقصات ومناقصات FBO',
+    'logs.tenderLogs': 'سجلات المناقصات',
+    'logs.fboTenderLogs': 'سجلات مناقصات FBO',
+    'logs.timestamp': 'الوقت والتاريخ',
+    'logs.user': 'معرف المستخدم',
+    'logs.tender': 'المناقصة',
+    'logs.fbo': 'FBO',
+    'logs.action': 'الإجراء',
+    'logs.changes': 'التغييرات',
 
     // Footer
     'footer.about.title': 'عن JetFlyt',

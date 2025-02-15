@@ -15,7 +15,7 @@ interface FBOOfferListProps {
 export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }: FBOOfferListProps) {
   const [showContractModal, setShowContractModal] = useState(false);
   const [selectedFBO, setSelectedFBO] = useState<FBOTender['fbo'] | null>(null);
-  const { acceptOffer, loading } = useTender();
+  const { acceptOffer, cancelFBOTender, loading } = useTender();
   const { t } = useTranslation();
 
   const handleAcceptOffer = async (offerId: string, fbo: FBOTender['fbo']) => {
@@ -27,6 +27,16 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
     } catch (err) {
       console.error('Error accepting offer:', err);
       alert(t('tenders.offers.errors.acceptFailed'));
+    }
+  };
+
+  const handleCancelOffer = async (offerId: string) => {
+    try {
+      await cancelFBOTender(offerId);
+      await onOfferAccepted();
+    } catch (err) {
+      console.error('Error canceling offer:', err);
+      alert(t('tenders.offers.errors.cancelFailed'));
     }
   };
 
@@ -141,14 +151,29 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                         <Check className="h-4 w-4 mr-1" />
                         {t('tenders.offers.buttons.sendContract')}
                       </button>
+                    ) : offer.status === 'canceled' ? (
+                      <span className="text-sm text-gray-500">
+                        {t('tenders.offers.status.canceled')}
+                      </span>
                     ) : tenderStatus === 'pending' && (
-                      <button
-                        onClick={() => handleAcceptOffer(offer.id, offer.fbo)}
-                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        disabled={loading}
-                      >
-                        {t('tenders.offers.buttons.accept')}
-                      </button>
+                      <div className="flex space-x-2">
+                        {offer.status === 'submitted' && (
+                          <button
+                            onClick={() => handleAcceptOffer(offer.id, offer.fbo)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                            disabled={loading}
+                          >
+                            {t('tenders.offers.buttons.accept')}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleCancelOffer(offer.id)}
+                          className="inline-flex items-center px-3 py-1 border border-red-600 text-sm leading-4 font-medium rounded-md text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          disabled={loading}
+                        >
+                          {t('tenders.offers.buttons.cancel')}
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -169,10 +194,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
           </p>
           <div className="mt-6 flex justify-end">
             <button
-              onClick={() => {
-                setShowContractModal(false);
-                window.location.reload();
-              }}
+              onClick={() => setShowContractModal(false)}
               className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             >
               {t('tenders.offers.buttons.close')}
