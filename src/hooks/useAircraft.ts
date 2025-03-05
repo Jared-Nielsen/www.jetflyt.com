@@ -35,9 +35,14 @@ export function useAircraft() {
 
   const addAircraft = async (newAircraft: Omit<Aircraft, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      // Get current user's ID
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error('No authenticated user found');
+
       const { data, error: supabaseError } = await supabase
         .from('aircraft')
-        .insert([newAircraft])
+        .insert([{ ...newAircraft, user_id: user.id }])
         .select(`
           *,
           type:type_id(*),

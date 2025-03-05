@@ -101,7 +101,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">
-                      ${offer.offer_price.toFixed(2)}/gal
+                      ${offer.status === 'pending' ? '0.00' : offer.offer_price.toFixed(2)}/gal
                     </div>
                     {hasCounterOffer && (
                       <div className="text-sm text-blue-600 mt-1">
@@ -111,7 +111,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">
-                      ${offer.total_cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      ${offer.status === 'pending' ? '0.00' : offer.total_cost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
                     {hasCounterOffer && (
                       <div className="text-sm text-blue-600 mt-1">
@@ -121,7 +121,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">
-                      ${offer.taxes_and_fees.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      ${offer.status === 'pending' ? '0.00' : offer.taxes_and_fees.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
                     {hasCounterOffer && (
                       <div className="text-sm text-blue-600 mt-1">
@@ -131,7 +131,7 @@ export function FBOOfferList({ offers, tenderId, tenderStatus, onOfferAccepted }
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-sm text-gray-900">
-                      ${finalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      ${offer.status === 'pending' ? '0.00' : finalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
                     {hasCounterOffer && (
                       <div className="text-sm text-blue-600 mt-1">
